@@ -2,9 +2,10 @@ import React, { useState } from "react"
 import JSZip from "jszip"
 import mergeImages from "merge-images"
 
+type TraitsMap = Record<string, Record<string, JSZip.JSZipObject>>
+
 const RandomGenerator = () => {
-  const [traitsMap, setTraitsMap] =
-    useState<Record<string, JSZip.JSZipObject[]>>()
+  const [traitsMap, setTraitsMap] = useState<TraitsMap>()
   const [mergedImageBase64, setMergedImageBase64] = useState<string>()
 
   const handleOnChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,7 +19,7 @@ const RandomGenerator = () => {
 
       console.log(`File loaded`)
 
-      const newTraitsMap: Record<string, JSZip.JSZipObject[]> = {}
+      const newTraitsMap: TraitsMap = {}
 
       zip
         .filter((relativePath, zipEntry) => {
@@ -28,10 +29,13 @@ const RandomGenerator = () => {
           if (file.dir) {
             // remove the trailing '/' from directory name
             const traitName = file.name.slice(0, -1)
-            newTraitsMap[traitName] = []
+            newTraitsMap[traitName] = {}
           } else {
-            const traitName = file.name.split("/")[0]
-            newTraitsMap[traitName] = [...newTraitsMap[traitName], file]
+            const [traitName, valueName] = file.name.split("/")
+            newTraitsMap[traitName] = {
+              ...newTraitsMap[traitName],
+              [valueName]: file,
+            }
           }
         })
 
@@ -42,15 +46,17 @@ const RandomGenerator = () => {
   const generateRandomImageFromTraits = async () => {
     if (!traitsMap) return
 
-    const selectedTraits: Record<string, JSZip.JSZipObject> = {}
-    Object.entries(traitsMap).forEach(([traitName, traitFiles]) => {
-      const randomIndex = Math.floor(Math.random() * traitFiles.length)
-      selectedTraits[traitName] = traitFiles[randomIndex]
+    const selectedTraits: Record<string, string> = {}
+    Object.entries(traitsMap).forEach(([traitName, traitValues]) => {
+      const values = Object.entries(traitValues)
+      const randomIndex = Math.floor(Math.random() * values.length)
+      const [traitValue] = values[randomIndex]
+      selectedTraits[traitName] = traitValue
     })
 
     const traitFilesImageContents = await Promise.all(
-      Object.values(selectedTraits).map((traitFile) =>
-        traitFile.async("base64")
+      Object.entries(selectedTraits).map(([traitName, valueName]) =>
+        traitsMap[traitName][valueName].async("base64")
       )
     )
 
