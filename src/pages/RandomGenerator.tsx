@@ -7,8 +7,7 @@ import TraitsList, {
   TraitValue,
   TraitEmptyValue,
 } from "../components/TraitsList"
-import { stringify } from "querystring"
-import { Button } from "react-bootstrap"
+import { Button, Col, Form, Row } from "react-bootstrap"
 
 type TraitsMap = Record<string, Trait>
 type TraitFilesMap = Record<string, Record<string, JSZipObject>>
@@ -183,22 +182,36 @@ const RandomGenerator = () => {
   }
 
   return (
-    <div>
-      <input type="file" name="assetsFile" onChange={handleOnChange} />
+    <Col sm={12}>
+      <Row>
+        <Form.File type="file" name="assetsFile" onChange={handleOnChange} />
+      </Row>
       <hr />
-      {traits && (
-        <TraitsList
-          traits={traits}
-          onTraitValueDistributionChange={handleDistributionChange}
-        />
-      )}
-      {traits && (
-        <Button onClick={generateRandomImageFromTraits}>
-          Generate random image
-        </Button>
-      )}
-      {mergedImageBase64 && <img src={mergedImageBase64} alt="NFT!" />}
-    </div>
+      <Row>
+        <Col sm={8}>
+          {traits && (
+            <TraitsList
+              traits={traits}
+              onTraitValueDistributionChange={handleDistributionChange}
+            />
+          )}
+        </Col>
+        <Col sm={4}>
+          <Row>
+            {traits && (
+              <Button onClick={generateRandomImageFromTraits}>
+                Test random image
+              </Button>
+            )}
+          </Row>
+          {mergedImageBase64 && (
+            <Row>
+              <img src={mergedImageBase64} alt="NFT!" />
+            </Row>
+          )}
+        </Col>
+      </Row>
+    </Col>
   )
 }
 

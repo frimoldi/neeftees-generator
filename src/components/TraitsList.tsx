@@ -60,7 +60,7 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
   return (
     <Tab.Container>
       <Row>
-        <Col sm={4}>
+        <Col>
           <h2>Traits</h2>
           <ListGroup>
             {traits.map((trait) => (
@@ -70,7 +70,7 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
             ))}
           </ListGroup>
         </Col>
-        <Col sm={4}>
+        <Col>
           <Tab.Content>
             {traits.map((trait) => {
               const isOptional = Object.values(trait.values).some(
