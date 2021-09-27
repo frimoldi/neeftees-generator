@@ -1,12 +1,14 @@
 import React from "react"
+import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
 import RandomGenerator from "./pages/RandomGenerator"
+import { Container } from "react-bootstrap"
 
 function App() {
   return (
-    <div className="App">
+    <Container fluid>
       <RandomGenerator />
-    </div>
+    </Container>
   )
 }
 
