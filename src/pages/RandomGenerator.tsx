@@ -159,7 +159,7 @@ const RandomGenerator = () => {
     for (let traitName in traitsMap) {
       const values = Object.values(traitsMap[traitName].values)
       const weightedValues = values.flatMap((value) =>
-        Array<string>(value.distribution).fill(value.name)
+        Array<string>(value.distribution * 100).fill(value.name)
       )
       const randomIndex = Math.floor(Math.random() * weightedValues.length)
 
