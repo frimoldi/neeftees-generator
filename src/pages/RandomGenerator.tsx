@@ -2,7 +2,11 @@ import React, { useMemo, useState } from "react"
 import JSZip from "jszip"
 import mergeImages from "merge-images"
 
-import TraitsList, { Trait, TraitValue } from "../components/TraitsList"
+import TraitsList, {
+  Trait,
+  TraitValue,
+  TraitEmptyValue,
+} from "../components/TraitsList"
 
 type TraitsMap = Record<string, Trait>
 
@@ -89,7 +93,7 @@ const RandomGenerator = () => {
   ) => {
     if (!traitsMap) return
 
-    const updatedTraits: Record<string, Trait> = {
+    let updatedTraits: Record<string, Trait> = {
       ...traitsMap,
       [traitName]: {
         ...traitsMap[traitName],
@@ -101,6 +105,33 @@ const RandomGenerator = () => {
           },
         },
       },
+    }
+
+    const sumOfDistributionsOfTrait = Object.values(
+      updatedTraits[traitName].values
+    )
+      .filter((v) => v.name !== "none")
+      .reduce((t, v) => (t += v.distribution), 0)
+
+    const distributionOffset = 100 - sumOfDistributionsOfTrait
+    const traitEmptyValue: TraitEmptyValue = {
+      name: "none",
+      distribution: distributionOffset,
+    }
+
+    if (distributionOffset > 0) {
+      updatedTraits = {
+        ...updatedTraits,
+        [traitName]: {
+          ...updatedTraits[traitName],
+          values: {
+            ...updatedTraits[traitName].values,
+            none: traitEmptyValue,
+          },
+        },
+      }
+    } else {
+      delete updatedTraits[traitName].values.none
     }
 
     setTraitsMap(updatedTraits)

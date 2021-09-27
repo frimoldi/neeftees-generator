@@ -20,7 +20,7 @@ export type TraitEmptyValue = TraitValue & {
 
 export type Trait = {
   name: string
-  values: Record<string, TraitValue>
+  values: Record<string, TraitValue | TraitEmptyValue>
 }
 export type Traits = Trait[]
 
