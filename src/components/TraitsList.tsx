@@ -7,7 +7,10 @@ import {
   Form,
   InputGroup,
   FormControl,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap"
+import { BsInfoCircle } from "react-icons/bs"
 
 export type TraitValue = {
   name: string
@@ -69,40 +72,60 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
         </Col>
         <Col sm={4}>
           <Tab.Content>
-            {traits.map((trait) => (
-              <Tab.Pane eventKey={`#${trait.name}`}>
-                <h2>{trait.name}</h2>
-                <Form.Switch
-                  type="switch"
-                  id={`switch_${trait.name}`}
-                  label="Required"
-                />
-                <ListGroup>
-                  {Object.values(trait.values).map((value) => (
-                    <ListGroup.Item>
-                      <Row>
-                        <Col>{value.name}</Col>
-                        <Col>
-                          <InputGroup>
-                            <FormControl
-                              value={value.distribution}
-                              type="number"
-                              onChange={handleDistributionChange(
-                                trait.name,
-                                value.name
-                              )}
-                            />
-                            <InputGroup.Append>
-                              <InputGroup.Text>%</InputGroup.Text>
-                            </InputGroup.Append>
-                          </InputGroup>
-                        </Col>
-                      </Row>
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-              </Tab.Pane>
-            ))}
+            {traits.map((trait) => {
+              const isOptional = Object.values(trait.values).some(
+                (v) => v.name === "none"
+              )
+              return (
+                <Tab.Pane eventKey={`#${trait.name}`}>
+                  <h2>
+                    {trait.name}
+                    {isOptional && (
+                      <>
+                        <small className="text-muted"> - optional </small>
+                        <OverlayTrigger
+                          overlay={
+                            <Tooltip
+                              id={`${trait.name}-optional`}
+                              placement="right-end"
+                            >
+                              This trait was marked as 'optional' because the
+                              sum of its values probabilities is less than 100%
+                            </Tooltip>
+                          }
+                        >
+                          <BsInfoCircle />
+                        </OverlayTrigger>
+                      </>
+                    )}
+                  </h2>
+                  <ListGroup>
+                    {Object.values(trait.values).map((value) => (
+                      <ListGroup.Item>
+                        <Row>
+                          <Col>{value.name}</Col>
+                          <Col>
+                            <InputGroup>
+                              <FormControl
+                                value={value.distribution}
+                                type="number"
+                                onChange={handleDistributionChange(
+                                  trait.name,
+                                  value.name
+                                )}
+                              />
+                              <InputGroup.Append>
+                                <InputGroup.Text>%</InputGroup.Text>
+                              </InputGroup.Append>
+                            </InputGroup>
+                          </Col>
+                        </Row>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                </Tab.Pane>
+              )
+            })}
           </Tab.Content>
         </Col>
       </Row>
