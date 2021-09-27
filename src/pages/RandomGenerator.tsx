@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react"
-import JSZip from "jszip"
+import React, { useMemo, useRef, useState } from "react"
+import JSZip, { JSZipObject } from "jszip"
 import mergeImages from "merge-images"
 
 import TraitsList, {
@@ -7,12 +7,16 @@ import TraitsList, {
   TraitValue,
   TraitEmptyValue,
 } from "../components/TraitsList"
+import { stringify } from "querystring"
+import { Button } from "react-bootstrap"
 
 type TraitsMap = Record<string, Trait>
+type TraitFilesMap = Record<string, Record<string, JSZipObject>>
 
 const RandomGenerator = () => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
   const [mergedImageBase64, setMergedImageBase64] = useState<string>()
+  const traitFilesMapRef = useRef<TraitFilesMap>()
 
   const traits = useMemo(
     () => traitsMap && Object.values(traitsMap),
@@ -79,6 +83,15 @@ const RandomGenerator = () => {
                 },
               },
             }
+
+            traitFilesMapRef.current = {
+              ...traitFilesMapRef.current,
+              [traitName]: {
+                ...(traitFilesMapRef.current &&
+                  traitFilesMapRef.current[traitName]),
+                [newValueName]: file,
+              },
+            }
           }
         })
 
@@ -137,28 +150,37 @@ const RandomGenerator = () => {
     setTraitsMap(updatedTraits)
   }
 
-  // const generateRandomImageFromTraits = async () => {
-  //   if (!traitsMap) return
+  const generateRandomImageFromTraits = async () => {
+    if (!traitsMap) return
+    if (!traitFilesMapRef.current) return
 
-  //   const selectedTraits: Record<string, string> = {}
-  //   Object.entries(traitsMap).forEach(([traitName, traitValues]) => {
-  //     const values = Object.entries(traitValues)
-  //     const randomIndex = Math.floor(Math.random() * values.length)
-  //     const [traitValue] = values[randomIndex]
-  //     selectedTraits[traitName] = traitValue
-  //   })
+    let selectedTraits: Record<string, string> = {}
 
-  //   const traitFilesImageContents = await Promise.all(
-  //     Object.entries(selectedTraits).map(([traitName, valueName]) =>
-  //       traitsMap[traitName][valueName].async("base64")
-  //     )
-  //   )
+    for (let traitName in traitsMap) {
+      const values = Object.values(traitsMap[traitName].values)
+      const weightedValues = values.flatMap((value) =>
+        Array<string>(value.distribution).fill(value.name)
+      )
+      const randomIndex = Math.floor(Math.random() * weightedValues.length)
 
-  //   const mergedImage = await mergeImages(
-  //     traitFilesImageContents.map((b64) => `data:image/png;base64,${b64}`)
-  //   )
-  //   setMergedImageBase64(mergedImage)
-  // }
+      if (weightedValues[randomIndex] !== "none") {
+        selectedTraits[traitName] = weightedValues[randomIndex]
+      }
+    }
+
+    const traitFilesImageContents = await Promise.all(
+      Object.entries(selectedTraits).map(
+        ([traitName, valueName]) =>
+          traitFilesMapRef.current &&
+          traitFilesMapRef.current[traitName][valueName].async("base64")
+      )
+    )
+
+    const mergedImage = await mergeImages(
+      traitFilesImageContents.map((b64) => `data:image/png;base64,${b64}`)
+    )
+    setMergedImageBase64(mergedImage)
+  }
 
   return (
     <div>
@@ -170,6 +192,12 @@ const RandomGenerator = () => {
           onTraitValueDistributionChange={handleDistributionChange}
         />
       )}
+      {traits && (
+        <Button onClick={generateRandomImageFromTraits}>
+          Generate random image
+        </Button>
+      )}
+      {mergedImageBase64 && <img src={mergedImageBase64} alt="NFT!" />}
     </div>
   )
 }
