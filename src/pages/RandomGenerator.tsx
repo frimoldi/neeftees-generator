@@ -1,22 +1,22 @@
 import React, { useMemo, useRef, useState } from "react"
-import JSZip, { JSZipObject } from "jszip"
-import mergeImages from "merge-images"
 import JSON from "json5"
+import {
+  generateRandomImage,
+  buildTraitsMapFromZip,
+  NFTAttribute,
+  Base64Image,
+  FileMap as TraitFilesMap,
+} from "../utils/NFTRandomGenerator"
 
-import TraitsList, {
-  Trait,
-  TraitValue,
-  TraitEmptyValue,
-} from "../components/TraitsList"
+import TraitsList, { Trait, TraitEmptyValue } from "../components/TraitsList"
 import { Button, Col, Form, Row } from "react-bootstrap"
 
 type TraitsMap = Record<string, Trait>
-type TraitFilesMap = Record<string, Record<string, JSZipObject>>
 
 const RandomGenerator = () => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
-  const [mergedImageBase64, setMergedImageBase64] = useState<string>()
-  const [selectedTraits, setSelectedTraits] = useState<Record<string, string>>()
+  const [mergedImageBase64, setMergedImageBase64] = useState<Base64Image>()
+  const [selectedTraits, setSelectedTraits] = useState<NFTAttribute[]>()
   const traitFilesMapRef = useRef<TraitFilesMap>()
 
   const traits = useMemo(
@@ -27,74 +27,10 @@ const RandomGenerator = () => {
   const handleOnChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.currentTarget.files && e.currentTarget.files.length > 0) {
       const file = e.currentTarget.files[0]
-      const zip = await JSZip.loadAsync(file)
 
-      let newTraits: TraitsMap = {}
+      const [newTraits, fileMap] = await buildTraitsMapFromZip(file)
 
-      zip
-        .filter((relativePath, zipEntry) => {
-          return !relativePath.startsWith("__MACOSX")
-        })
-        .forEach((file) => {
-          if (file.dir) {
-            // remove the trailing '/' from directory name
-            const traitName = file.name.slice(0, -1)
-            newTraits = {
-              ...newTraits,
-              [traitName]: {
-                name: traitName,
-                values: {},
-              },
-            }
-          } else {
-            const [traitName, valueName] = file.name.split("/")
-            const valuesInTrait = Object.values(newTraits[traitName].values)
-            const valuesWithNewDistribution = valuesInTrait.reduce<
-              Record<string, TraitValue>
-            >(
-              (map, value) => ({
-                ...map,
-                [value.name]: {
-                  ...value,
-                  distribution: Math.floor(100 / (valuesInTrait.length + 1)),
-                },
-              }),
-              {}
-            )
-
-            const newValueName = valueName.substring(
-              0,
-              valueName.lastIndexOf(".")
-            )
-            newTraits = {
-              ...newTraits,
-              [traitName]: {
-                ...newTraits[traitName],
-                values: {
-                  ...valuesWithNewDistribution,
-                  [newValueName]: {
-                    name: newValueName,
-                    distribution:
-                      100 -
-                      Object.values(valuesWithNewDistribution).reduce(
-                        (t, v) => (t += v.distribution),
-                        0
-                      ),
-                  },
-                },
-              },
-            }
-
-            traitFilesMapRef.current = {
-              ...traitFilesMapRef.current,
-              [traitName]: {
-                ...(traitFilesMapRef.current &&
-                  traitFilesMapRef.current[traitName]),
-                [newValueName]: file,
-              },
-            }
-          }
-        })
+      traitFilesMapRef.current = fileMap
 
       setTraitsMap(newTraits)
     }
@@ -155,34 +91,13 @@ const RandomGenerator = () => {
     if (!traitsMap) return
     if (!traitFilesMapRef.current) return
 
-    let selectedTraits: Record<string, string> = {}
-
-    for (let traitName in traitsMap) {
-      const values = Object.values(traitsMap[traitName].values)
-      const weightedValues = values.flatMap((value) =>
-        Array<string>(value.distribution * 100).fill(value.name)
-      )
-      const randomIndex = Math.floor(Math.random() * weightedValues.length)
-
-      if (weightedValues[randomIndex] !== "none") {
-        selectedTraits[traitName] = weightedValues[randomIndex]
-      }
-    }
-
-    const traitFilesImageContents = await Promise.all(
-      Object.entries(selectedTraits).map(
-        ([traitName, valueName]) =>
-          traitFilesMapRef.current &&
-          traitFilesMapRef.current[traitName][valueName].async("base64")
-      )
+    const [image, attributes] = await generateRandomImage(
+      Object.values(traitsMap),
+      traitFilesMapRef.current
     )
 
-    const mergedImage = await mergeImages(
-      traitFilesImageContents.map((b64) => `data:image/png;base64,${b64}`)
-    )
-
-    setMergedImageBase64(mergedImage)
-    setSelectedTraits(selectedTraits)
+    setMergedImageBase64(image)
+    setSelectedTraits(attributes)
   }
 
   return (
