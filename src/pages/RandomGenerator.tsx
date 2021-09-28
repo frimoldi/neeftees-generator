@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useState } from "react"
 import JSZip, { JSZipObject } from "jszip"
 import mergeImages from "merge-images"
+import JSON from "json5"
 
 import TraitsList, {
   Trait,
@@ -15,6 +16,7 @@ type TraitFilesMap = Record<string, Record<string, JSZipObject>>
 const RandomGenerator = () => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
   const [mergedImageBase64, setMergedImageBase64] = useState<string>()
+  const [selectedTraits, setSelectedTraits] = useState<Record<string, string>>()
   const traitFilesMapRef = useRef<TraitFilesMap>()
 
   const traits = useMemo(
@@ -178,7 +180,9 @@ const RandomGenerator = () => {
     const mergedImage = await mergeImages(
       traitFilesImageContents.map((b64) => `data:image/png;base64,${b64}`)
     )
+
     setMergedImageBase64(mergedImage)
+    setSelectedTraits(selectedTraits)
   }
 
   return (
@@ -208,6 +212,18 @@ const RandomGenerator = () => {
             <Row>
               <img src={mergedImageBase64} alt="NFT!" />
             </Row>
+          )}
+          {selectedTraits && (
+            <>
+              <Row>
+                <h6>Metadata</h6>
+              </Row>
+              <Row>
+                <pre>
+                  <code>{JSON.stringify(selectedTraits, null, 2)}</code>
+                </pre>
+              </Row>
+            </>
           )}
         </Col>
       </Row>
