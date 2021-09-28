@@ -64,7 +64,11 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
           <h2>Traits</h2>
           <ListGroup>
             {traits.map((trait) => (
-              <ListGroup.Item action href={`#${trait.name}`}>
+              <ListGroup.Item
+                action
+                href={`#${trait.name}`}
+                key={`${trait.name}-item`}
+              >
                 {trait.name}
               </ListGroup.Item>
             ))}
@@ -77,17 +81,21 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
                 (v) => v.name === "none"
               )
               return (
-                <Tab.Pane eventKey={`#${trait.name}`}>
+                <Tab.Pane
+                  eventKey={`#${trait.name}`}
+                  key={`${trait.name}-pane`}
+                >
                   <h2>
                     {trait.name}
                     {isOptional && (
                       <>
                         <small className="text-muted"> - optional </small>
                         <OverlayTrigger
+                          key={`${trait.name}-tooltip`}
                           overlay={
                             <Tooltip
                               id={`${trait.name}-optional`}
-                              placement="right-end"
+                              placement="left"
                             >
                               This trait was marked as 'optional' because the
                               sum of its values probabilities is less than 100%
@@ -101,7 +109,7 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
                   </h2>
                   <ListGroup>
                     {Object.values(trait.values).map((value) => (
-                      <ListGroup.Item>
+                      <ListGroup.Item key={`${value.name}-item`}>
                         <Row>
                           <Col>{value.name}</Col>
                           <Col>
