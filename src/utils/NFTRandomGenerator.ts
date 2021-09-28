@@ -1,5 +1,6 @@
 import JSZip from "jszip"
 import mergeImages from "merge-images"
+import { saveAs } from "file-saver"
 import { Trait, TraitValue } from "../components/TraitsList"
 
 export type NFTAttribute = {
@@ -60,6 +61,34 @@ export const generateRandomImage = async (
   const image = await buildImageFromAttributes(attributes, files)
 
   return [image, attributes]
+}
+
+export const generateAssetsZipFile = async (
+  amount: number,
+  traits: Trait[],
+  files: FileMap
+) => {
+  const zip = new JSZip()
+
+  const content = await Promise.all(
+    Array(amount)
+      .fill(null)
+      .map(async () => generateRandomImage(traits, files))
+  )
+
+  content.forEach(([image, metadata], index) => {
+    zip.file(
+      `${index + 1}.png`,
+      image.replace(/^data:image\/png;base64,/, ""),
+      { base64: true }
+    )
+    zip.file(`${index + 1}.json`, JSON.stringify(metadata))
+  })
+
+  const zipContent = await zip.generateAsync({ type: "blob" })
+  const zipFile = new File([zipContent], "assets.zip")
+
+  saveAs(zipFile)
 }
 
 export const buildTraitsMapFromZip = async (

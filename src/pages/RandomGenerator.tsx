@@ -1,15 +1,22 @@
 import React, { useMemo, useRef, useState } from "react"
 import JSON from "json5"
 import {
+  Button,
+  Col,
+  Form,
+  Row,
+  InputGroup,
+  FormControl,
+} from "react-bootstrap"
+import {
   generateRandomImage,
   buildTraitsMapFromZip,
   NFTAttribute,
   Base64Image,
   FileMap as TraitFilesMap,
+  generateAssetsZipFile,
 } from "../utils/NFTRandomGenerator"
-
 import TraitsList, { Trait, TraitEmptyValue } from "../components/TraitsList"
-import { Button, Col, Form, Row } from "react-bootstrap"
 
 type TraitsMap = Record<string, Trait>
 
@@ -17,6 +24,7 @@ const RandomGenerator = () => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
   const [mergedImageBase64, setMergedImageBase64] = useState<Base64Image>()
   const [selectedTraits, setSelectedTraits] = useState<NFTAttribute[]>()
+  const [assetsAmount, setAssetsAmount] = useState(500)
   const traitFilesMapRef = useRef<TraitFilesMap>()
 
   const traits = useMemo(
@@ -100,10 +108,43 @@ const RandomGenerator = () => {
     setSelectedTraits(attributes)
   }
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAssetsAmount(e.target.valueAsNumber)
+  }
+
+  const handleGenerateAssets = async () => {
+    if (!traits) return
+    if (!traitFilesMapRef.current) return
+
+    console.log("Random generation started")
+
+    const filesMap = traitFilesMapRef.current
+
+    await generateAssetsZipFile(assetsAmount, traits, filesMap)
+
+    console.log("Random generation ended")
+  }
+
   return (
     <Col sm={12}>
-      <Row>
-        <Form.File type="file" name="assetsFile" onChange={handleOnChange} />
+      <Row style={{ marginTop: "20px" }}>
+        <Col>
+          <Form.File type="file" name="assetsFile" onChange={handleOnChange} />
+        </Col>
+        {traitsMap && (
+          <Col sm={2}>
+            <InputGroup>
+              <FormControl
+                value={assetsAmount}
+                onChange={handleAmountChange}
+                type="number"
+              />
+              <InputGroup.Append>
+                <Button onClick={handleGenerateAssets}>Generate!</Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        )}
       </Row>
       <hr />
       <Row>
