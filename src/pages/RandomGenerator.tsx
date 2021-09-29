@@ -1,4 +1,5 @@
-import React, { useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
+import { saveAs } from "file-saver"
 import JSON from "json5"
 import {
   Button,
@@ -14,9 +15,22 @@ import {
   NFTAttribute,
   Base64Image,
   FileMap as TraitFilesMap,
-  generateAssetsZipFile,
+  serializeFileMap,
 } from "../utils/NFTRandomGenerator"
 import TraitsList, { Trait, TraitEmptyValue } from "../components/TraitsList"
+import JSZip from "jszip"
+
+// @ts-ignore
+// eslint-disable-next-line
+import Worker from "worker-loader!../utils/createAssetsZipFile.js"
+
+const worker = new Worker()
+
+worker.addEventListener("message", (msg: MessageEvent) => {
+  const zipFile = msg.data
+
+  saveAs(zipFile)
+})
 
 type TraitsMap = Record<string, Trait>
 
@@ -25,7 +39,7 @@ const RandomGenerator = () => {
   const [mergedImageBase64, setMergedImageBase64] = useState<Base64Image>()
   const [selectedTraits, setSelectedTraits] = useState<NFTAttribute[]>()
   const [assetsAmount, setAssetsAmount] = useState(500)
-  const traitFilesMapRef = useRef<TraitFilesMap>()
+  const traitFilesMapRef = useRef<[File, TraitFilesMap]>()
 
   const traits = useMemo(
     () => traitsMap && Object.values(traitsMap),
@@ -38,7 +52,7 @@ const RandomGenerator = () => {
 
       const [newTraits, fileMap] = await buildTraitsMapFromZip(file)
 
-      traitFilesMapRef.current = fileMap
+      traitFilesMapRef.current = [file, fileMap]
 
       setTraitsMap(newTraits)
     }
@@ -95,18 +109,18 @@ const RandomGenerator = () => {
     setTraitsMap(updatedTraits)
   }
 
-  const generateRandomImageFromTraits = async () => {
-    if (!traitsMap) return
-    if (!traitFilesMapRef.current) return
+  // const generateRandomImageFromTraits = async () => {
+  //   if (!traitsMap) return
+  //   if (!traitFilesMapRef.current) return
 
-    const [image, attributes] = await generateRandomImage(
-      Object.values(traitsMap),
-      traitFilesMapRef.current
-    )
+  //   const [image, attributes] = await generateRandomImage(
+  //     Object.values(traitsMap),
+  //     traitFilesMapRef.current[1]
+  //   )
 
-    setMergedImageBase64(image)
-    setSelectedTraits(attributes)
-  }
+  //   //setMergedImageBase64(image)
+  //   setSelectedTraits(attributes)
+  // }
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAssetsAmount(e.target.valueAsNumber)
@@ -118,11 +132,12 @@ const RandomGenerator = () => {
 
     console.log("Random generation started")
 
-    const filesMap = traitFilesMapRef.current
-
-    await generateAssetsZipFile(assetsAmount, traits, filesMap)
-
-    console.log("Random generation ended")
+    const [file, fileMap] = traitFilesMapRef.current
+    worker.postMessage({
+      amount: assetsAmount,
+      traits,
+      zipFile: file,
+    })
   }
 
   return (
@@ -156,7 +171,7 @@ const RandomGenerator = () => {
             />
           )}
         </Col>
-        <Col sm={4}>
+        {/* <Col sm={4}>
           <Row>
             {traits && (
               <Button onClick={generateRandomImageFromTraits}>
@@ -181,7 +196,7 @@ const RandomGenerator = () => {
               </Row>
             </>
           )}
-        </Col>
+        </Col> */}
       </Row>
     </Col>
   )

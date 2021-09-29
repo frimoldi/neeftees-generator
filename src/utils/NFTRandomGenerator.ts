@@ -1,6 +1,5 @@
 import JSZip from "jszip"
-import mergeImages from "merge-images"
-import { saveAs } from "file-saver"
+import mergeImages from "./mergeImages"
 import { Trait, TraitValue } from "../components/TraitsList"
 
 export type NFTAttribute = {
@@ -15,7 +14,7 @@ export type FileMap = Record<string, Record<string, JSZip.JSZipObject>>
 const buildImageFromAttributes = async (
   attributes: NFTAttribute[],
   files: FileMap
-): Promise<Base64Image> => {
+): Promise<Blob> => {
   const traitFilesImageContents = await Promise.all(
     attributes.map(({ trait_type, value }) =>
       files[trait_type][value].async("base64")
@@ -56,39 +55,11 @@ const buildRandomAtrributes = (traits: Trait[]): NFTAttribute[] => {
 export const generateRandomImage = async (
   traits: Trait[],
   files: FileMap
-): Promise<[Base64Image, NFTAttribute[]]> => {
+): Promise<[Blob, NFTAttribute[]]> => {
   const attributes = buildRandomAtrributes(traits)
   const image = await buildImageFromAttributes(attributes, files)
 
   return [image, attributes]
-}
-
-export const generateAssetsZipFile = async (
-  amount: number,
-  traits: Trait[],
-  files: FileMap
-) => {
-  const zip = new JSZip()
-
-  const content = await Promise.all(
-    Array(amount)
-      .fill(null)
-      .map(async () => generateRandomImage(traits, files))
-  )
-
-  content.forEach(([image, metadata], index) => {
-    zip.file(
-      `${index + 1}.png`,
-      image.replace(/^data:image\/png;base64,/, ""),
-      { base64: true }
-    )
-    zip.file(`${index + 1}.json`, JSON.stringify(metadata))
-  })
-
-  const zipContent = await zip.generateAsync({ type: "blob" })
-  const zipFile = new File([zipContent], "assets.zip")
-
-  saveAs(zipFile)
 }
 
 export const buildTraitsMapFromZip = async (
@@ -161,4 +132,25 @@ export const buildTraitsMapFromZip = async (
     })
 
   return [newTraits, fileMap]
+}
+
+export const serializeFileMap = (fileMap: FileMap) => {
+  let serializedFileMap: Record<string, Record<string, string>> = {}
+
+  for (let traitName in fileMap) {
+    let serializedValuesAndFiles: Record<string, string> = {}
+
+    for (let traitValueName in fileMap[traitName]) {
+      serializedValuesAndFiles[traitValueName] =
+        fileMap[traitName][traitValueName].name
+    }
+
+    serializedFileMap[traitName] = {
+      ...serializedValuesAndFiles,
+    }
+  }
+
+  console.log(serializedFileMap)
+
+  return serializedFileMap
 }
