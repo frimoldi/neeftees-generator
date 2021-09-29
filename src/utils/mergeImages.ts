@@ -1,12 +1,28 @@
 type Sources = string[]
 
+const base64ToBlob = (source: string, sliceSize = 512) => {
+  const byteCharacters = atob(source)
+  const byteArrays = []
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize)
+
+    const byteNumbers = new Array(slice.length)
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i)
+    }
+
+    const byteArray = new Uint8Array(byteNumbers)
+    byteArrays.push(byteArray)
+  }
+
+  const blob = new Blob(byteArrays)
+  return blob
+}
+
 const mergeImages = async (sources: Sources) => {
   const imgBitmaps = await Promise.all(
-    sources.map((source) =>
-      fetch(source)
-        .then((res) => res.blob())
-        .then(createImageBitmap)
-    )
+    sources.map((source) => createImageBitmap(base64ToBlob(source)))
   )
 
   const width = Math.max.apply(

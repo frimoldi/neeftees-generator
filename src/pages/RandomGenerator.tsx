@@ -27,9 +27,13 @@ import Worker from "worker-loader!../utils/createAssetsZipFile.js"
 const worker = new Worker()
 
 worker.addEventListener("message", (msg: MessageEvent) => {
-  const zipFile = msg.data
+  if (msg.data.type === "progress") {
+    console.log(msg.data.progress)
+  } else {
+    const zipFile = msg.data
 
-  saveAs(zipFile)
+    saveAs(zipFile)
+  }
 })
 
 type TraitsMap = Record<string, Trait>

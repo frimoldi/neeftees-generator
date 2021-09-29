@@ -31,23 +31,33 @@ const generateAssetsZipFile = async (
     })
   const zip = new JSZip()
 
-  const content = await Promise.all(
-    Array(amount)
-      .fill(null)
-      .map(() => generateRandomImage(traits, fileMap))
-  )
+  for (let i = 0; i < amount; i++) {
+    const [image, metadata] = await generateRandomImage(traits, fileMap)
+    zip.file(
+      `${i + 1}.png`,
+      image
+    )
+    zip.file(`${i + 1}.json`, JSON.stringify(metadata))
+    // eslint-disable-next-line
+    self.postMessage({type: "progress", progress: `${i + 1}/${amount}`})
+  }
+  // const content = await Promise.all(
+  //   Array(amount)
+  //     .fill(null)
+  //     .map(() => generateRandomImage(traits, fileMap))
+  // )
 
   const endTime = (new Date()).getTime()
 
   console.log("All images generated in ", endTime - initialTime, "ms")
 
-  content.forEach(([image, metadata], index) => {
-    zip.file(
-      `${index + 1}.png`,
-      image
-    )
-    zip.file(`${index + 1}.json`, JSON.stringify(metadata))
-  })
+  // content.forEach(([image, metadata], index) => {
+  //   zip.file(
+  //     `${index + 1}.png`,
+  //     image
+  //   )
+  //   zip.file(`${index + 1}.json`, JSON.stringify(metadata))
+  // })
 
   console.log("images generated, starting zip file creation")
 

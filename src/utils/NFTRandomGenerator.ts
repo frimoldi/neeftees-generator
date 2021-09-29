@@ -21,9 +21,7 @@ const buildImageFromAttributes = async (
     )
   )
 
-  const mergedImage = await mergeImages(
-    traitFilesImageContents.map((b64) => `data:image/png;base64,${b64}`)
-  )
+  const mergedImage = await mergeImages(traitFilesImageContents)
 
   return mergedImage
 }
