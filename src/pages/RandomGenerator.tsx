@@ -1,6 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import { saveAs } from "file-saver"
-import JSON from "json5"
+import React, { useMemo, useRef, useState } from "react"
 import {
   Button,
   Col,
@@ -10,31 +8,18 @@ import {
   FormControl,
 } from "react-bootstrap"
 import {
-  generateRandomImage,
   buildTraitsMapFromZip,
   NFTAttribute,
   Base64Image,
   FileMap as TraitFilesMap,
-  serializeFileMap,
 } from "../utils/NFTRandomGenerator"
 import TraitsList, { Trait, TraitEmptyValue } from "../components/TraitsList"
-import JSZip from "jszip"
 
 // @ts-ignore
 // eslint-disable-next-line
 import Worker from "worker-loader!../utils/createAssetsZipFile.js"
 
 const worker = new Worker()
-
-worker.addEventListener("message", (msg: MessageEvent) => {
-  if (msg.data.type === "progress") {
-    console.log(msg.data.progress)
-  } else {
-    const zipFile = msg.data
-
-    saveAs(zipFile)
-  }
-})
 
 type TraitsMap = Record<string, Trait>
 
@@ -134,13 +119,31 @@ const RandomGenerator = () => {
     if (!traits) return
     if (!traitFilesMapRef.current) return
 
+    // @ts-ignore
+    const fileHandle = await window.showSaveFilePicker()
+    const fileWriter = await fileHandle.createWritable()
+
     console.log("Random generation started")
 
     const [file, fileMap] = traitFilesMapRef.current
+
+    worker.addEventListener("message", async (msg: MessageEvent) => {
+      if (msg.data.type === "progress") {
+        console.log(msg.data.progress)
+      } else if (msg.data.type === "data") {
+        const { data, metadata } = msg.data
+        await fileWriter.write(data)
+      } else if (msg.data.type === "done") {
+        await fileWriter.close()
+        console.log("FILE HAS BEEN SAVED!")
+      }
+    })
+
     worker.postMessage({
       amount: assetsAmount,
       traits,
       zipFile: file,
+      fileHandle: fileHandle,
     })
   }
 
@@ -167,7 +170,7 @@ const RandomGenerator = () => {
       </Row>
       <hr />
       <Row>
-        <Col sm={8}>
+        <Col sm={12}>
           {traits && (
             <TraitsList
               traits={traits}
