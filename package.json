@@ -20,7 +20,6 @@
     "canvas": "^2.8.0",
     "fflate": "^0.7.1",
     "file-saver": "^2.0.5",
-    "jszip": "^3.7.1",
     "merge-images": "^2.0.0",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.4",
