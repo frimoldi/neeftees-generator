@@ -14,9 +14,7 @@ function str2ab(str) {
 const generateAssetsZipFile = async (
   amount,
   traits,
-  file,
-  fileWriter
-) => {
+  file) => {
   const originalZip = await JSZip.loadAsync(file)
   let fileMap = {}
   originalZip
