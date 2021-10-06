@@ -1,5 +1,15 @@
+import { Zip, ZipDeflate, ZipPassThrough } from "fflate"
 import JSZip from "jszip"
 import { generateRandomImage } from "./NFTRandomGenerator"
+
+function str2ab(str) {
+  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+  var bufView = new Uint16Array(buf);
+  for (var i=0, strLen=str.length; i < strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  return bufView;
+}
 
 const generateAssetsZipFile = async (
   amount,
@@ -26,30 +36,33 @@ const generateAssetsZipFile = async (
         }
       }
     })
-  const zip = new JSZip()
+  const zip = new Zip()
+  zip.ondata = (err, data, final) => {    
+    // eslint-disable-next-line
+    self.postMessage({type: "data", data, last: final})
+
+    if (final) {
+      // eslint-disable-next-line
+      self.postMessage({type: "done"})
+    }
+  }
 
   for (let i = 0; i < amount; i++) {
     const [image, metadata] = await generateRandomImage(traits, fileMap)
-    zip.file(
-      `${i + 1}.png`,
-      image
-    )
-    zip.file(`${i + 1}.json`, JSON.stringify(metadata))
-    // eslint-disable-next-line
-    self.postMessage({type: "progress", progress: `${i + 1}/${amount}`})
-  }
+    const imageBuffer = await image.arrayBuffer()
+    const imageChunk = new Uint8Array(imageBuffer)
+    const imageFile = new ZipPassThrough(`${i + 1}.png`)
+    zip.add(imageFile)
+    imageFile.push(imageChunk, true)
 
-  zip
-    .generateInternalStream({type: "blob"})
-    .on("data", async (data, metadata) => {
-      // eslint-disable-next-line
-      self.postMessage({type: "data", data, metadata})
-    })
-    .on("end", async () => {
-      // eslint-disable-next-line
-      self.postMessage({type: "done"})
-    })
-    .resume()
+    const metadataFile = new ZipDeflate(`${i + 1}.json`, { level: 9 })   
+    zip.add(metadataFile)
+    metadataFile.push(str2ab(JSON.stringify(metadata)), true)
+
+    // eslint-disable-next-line
+    self.postMessage({type: "progress", progress: `${i + 1}`})
+  }
+  zip.end()
 }
 
 onmessage = async (e) => {

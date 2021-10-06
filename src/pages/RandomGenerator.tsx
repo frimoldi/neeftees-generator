@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
   Button,
   Col,
@@ -6,11 +6,10 @@ import {
   Row,
   InputGroup,
   FormControl,
+  ProgressBar,
 } from "react-bootstrap"
 import {
   buildTraitsMapFromZip,
-  NFTAttribute,
-  Base64Image,
   FileMap as TraitFilesMap,
 } from "../utils/NFTRandomGenerator"
 import TraitsList, { Trait, TraitEmptyValue } from "../components/TraitsList"
@@ -25,9 +24,8 @@ type TraitsMap = Record<string, Trait>
 
 const RandomGenerator = () => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
-  const [mergedImageBase64, setMergedImageBase64] = useState<Base64Image>()
-  const [selectedTraits, setSelectedTraits] = useState<NFTAttribute[]>()
   const [assetsAmount, setAssetsAmount] = useState(500)
+  const [progress, setProgress] = useState()
   const traitFilesMapRef = useRef<[File, TraitFilesMap]>()
 
   const traits = useMemo(
@@ -98,19 +96,6 @@ const RandomGenerator = () => {
     setTraitsMap(updatedTraits)
   }
 
-  // const generateRandomImageFromTraits = async () => {
-  //   if (!traitsMap) return
-  //   if (!traitFilesMapRef.current) return
-
-  //   const [image, attributes] = await generateRandomImage(
-  //     Object.values(traitsMap),
-  //     traitFilesMapRef.current[1]
-  //   )
-
-  //   //setMergedImageBase64(image)
-  //   setSelectedTraits(attributes)
-  // }
-
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAssetsAmount(e.target.valueAsNumber)
   }
@@ -119,23 +104,23 @@ const RandomGenerator = () => {
     if (!traits) return
     if (!traitFilesMapRef.current) return
 
-    // @ts-ignore
     const fileHandle = await window.showSaveFilePicker()
-    const fileWriter = await fileHandle.createWritable()
+    const writer = await fileHandle.createWritable()
 
     console.log("Random generation started")
 
-    const [file, fileMap] = traitFilesMapRef.current
+    const [file] = traitFilesMapRef.current
 
     worker.addEventListener("message", async (msg: MessageEvent) => {
       if (msg.data.type === "progress") {
-        console.log(msg.data.progress)
+        setProgress(msg.data.progress)
       } else if (msg.data.type === "data") {
-        const { data, metadata } = msg.data
-        await fileWriter.write(data)
+        const { data } = msg.data
+        await writer.write(data)
       } else if (msg.data.type === "done") {
-        await fileWriter.close()
-        console.log("FILE HAS BEEN SAVED!")
+        console.log("Message done came")
+        await writer.close()
+        console.log("Writer closed")
       }
     })
 
@@ -154,7 +139,7 @@ const RandomGenerator = () => {
           <Form.File type="file" name="assetsFile" onChange={handleOnChange} />
         </Col>
         {traitsMap && (
-          <Col sm={2}>
+          <Col sm={3}>
             <InputGroup>
               <FormControl
                 value={assetsAmount}
@@ -168,6 +153,21 @@ const RandomGenerator = () => {
           </Col>
         )}
       </Row>
+      <Row style={{ marginTop: "20px" }}>
+        <Col>
+          {progress && (
+            <ProgressBar
+              now={(progress / assetsAmount) * 100}
+              label={
+                progress < assetsAmount
+                  ? `Generating assets: ${progress}/${assetsAmount}`
+                  : `Done! Generated ${assetsAmount} assets`
+              }
+              variant={progress < assetsAmount ? "info" : "success"}
+            />
+          )}
+        </Col>
+      </Row>
       <hr />
       <Row>
         <Col sm={12}>
@@ -178,32 +178,6 @@ const RandomGenerator = () => {
             />
           )}
         </Col>
-        {/* <Col sm={4}>
-          <Row>
-            {traits && (
-              <Button onClick={generateRandomImageFromTraits}>
-                Test random image
-              </Button>
-            )}
-          </Row>
-          {mergedImageBase64 && (
-            <Row>
-              <img src={mergedImageBase64} alt="NFT!" />
-            </Row>
-          )}
-          {selectedTraits && (
-            <>
-              <Row>
-                <h6>Metadata</h6>
-              </Row>
-              <Row>
-                <pre>
-                  <code>{JSON.stringify(selectedTraits, null, 2)}</code>
-                </pre>
-              </Row>
-            </>
-          )}
-        </Col> */}
       </Row>
     </Col>
   )
