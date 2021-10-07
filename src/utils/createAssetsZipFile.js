@@ -44,7 +44,7 @@ const generateAssetsZipFile = async (
       self.postMessage({type: "done"})
     }
   }
-console.log(amount)
+
   for (let i = 0; i < amount; i++) {
     const [image, metadata] = await generateRandomImage(traits, fileMap)
     const imageBuffer = await image.arrayBuffer()

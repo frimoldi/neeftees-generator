@@ -9,7 +9,11 @@ function App() {
   const [file, setFile] = useState<File>()
   return (
     <Container fluid style={{ height: "100vh" }}>
-      {!file ? <RandomGenerator /> : <FileSelector onFileDrop={setFile} />}
+      {file ? (
+        <RandomGenerator assetsFile={file} />
+      ) : (
+        <FileSelector onFileDrop={setFile} />
+      )}
     </Container>
   )
 }

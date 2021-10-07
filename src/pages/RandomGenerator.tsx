@@ -22,7 +22,11 @@ const worker = new Worker()
 
 type TraitsMap = Record<string, Trait>
 
-const RandomGenerator = () => {
+type Props = {
+  assetsFile: File
+}
+
+const RandomGenerator = ({ assetsFile }: Props) => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
   const [assetsAmount, setAssetsAmount] = useState(10)
   const [isGeneratingAssets, setIsGeneratingAssets] = useState(false)
@@ -58,6 +62,18 @@ const RandomGenerator = () => {
 
     return () => worker.removeEventListener("message", handleWorkerMessage)
   }, [])
+
+  useEffect(() => {
+    const buildTraitsMap = async () => {
+      const [newTraits, fileMap] = await buildTraitsMapFromZip(assetsFile)
+
+      traitFilesMapRef.current = [assetsFile, fileMap]
+
+      setTraitsMap(newTraits)
+    }
+
+    buildTraitsMap()
+  }, [assetsFile])
 
   const handleOnChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.currentTarget.files && e.currentTarget.files.length > 0) {
@@ -152,13 +168,6 @@ const RandomGenerator = () => {
   return (
     <Col sm={12}>
       <Row style={{ marginTop: "20px" }}>
-        <Col>
-          <Form.Control
-            type="file"
-            name="assetsFile"
-            onChange={handleOnChange}
-          />
-        </Col>
         {traitsMap && (
           <Col sm={4}>
             <InputGroup>
