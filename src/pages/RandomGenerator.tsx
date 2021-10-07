@@ -153,7 +153,11 @@ const RandomGenerator = () => {
     <Col sm={12}>
       <Row style={{ marginTop: "20px" }}>
         <Col>
-          <Form.File type="file" name="assetsFile" onChange={handleOnChange} />
+          <Form.Control
+            type="file"
+            name="assetsFile"
+            onChange={handleOnChange}
+          />
         </Col>
         {traitsMap && (
           <Col sm={4}>
@@ -164,16 +168,15 @@ const RandomGenerator = () => {
                 type="number"
                 disabled={isGeneratingAssets}
               />
-              <InputGroup.Append>
-                <Button
-                  onClick={handleGenerateAssets}
-                  disabled={isGeneratingAssets}
-                >
-                  {isGeneratingAssets
-                    ? "Generating assets ..."
-                    : "Generate assets!"}
-                </Button>
-              </InputGroup.Append>
+
+              <Button
+                onClick={handleGenerateAssets}
+                disabled={isGeneratingAssets}
+              >
+                {isGeneratingAssets
+                  ? "Generating assets ..."
+                  : "Generate assets!"}
+              </Button>
             </InputGroup>
           </Col>
         )}

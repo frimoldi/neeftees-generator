@@ -121,9 +121,7 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
                                   value.name
                                 )}
                               />
-                              <InputGroup.Append>
-                                <InputGroup.Text>%</InputGroup.Text>
-                              </InputGroup.Append>
+                              <InputGroup.Text>%</InputGroup.Text>
                             </InputGroup>
                           </Col>
                         </Row>
