@@ -24,14 +24,40 @@ type TraitsMap = Record<string, Trait>
 
 const RandomGenerator = () => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
-  const [assetsAmount, setAssetsAmount] = useState(500)
+  const [assetsAmount, setAssetsAmount] = useState(10)
+  const [isGeneratingAssets, setIsGeneratingAssets] = useState(false)
   const [progress, setProgress] = useState()
   const traitFilesMapRef = useRef<[File, TraitFilesMap]>()
+  const zipWriter = useRef<FileSystemWritableFileStream>()
 
   const traits = useMemo(
     () => traitsMap && Object.values(traitsMap),
     [traitsMap]
   )
+
+  const handleWorkerMessage = async (msg: MessageEvent) => {
+    if (!zipWriter.current) return
+
+    if (msg.data.type === "progress") {
+      setProgress(msg.data.progress)
+    } else if (msg.data.type === "data") {
+      const { data } = msg.data
+      await zipWriter.current.write(data)
+    } else if (msg.data.type === "done") {
+      console.log("Message done came")
+      await zipWriter.current.close()
+      console.log("Writer closed")
+
+      zipWriter.current = undefined
+      setIsGeneratingAssets(false)
+    }
+  }
+
+  useEffect(() => {
+    worker.addEventListener("message", handleWorkerMessage)
+
+    return () => worker.removeEventListener("message", handleWorkerMessage)
+  }, [])
 
   const handleOnChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.currentTarget.files && e.currentTarget.files.length > 0) {
@@ -107,22 +133,13 @@ const RandomGenerator = () => {
     const fileHandle = await window.showSaveFilePicker()
     const writer = await fileHandle.createWritable()
 
+    zipWriter.current = writer
+
     console.log("Random generation started")
 
     const [file] = traitFilesMapRef.current
 
-    worker.addEventListener("message", async (msg: MessageEvent) => {
-      if (msg.data.type === "progress") {
-        setProgress(msg.data.progress)
-      } else if (msg.data.type === "data") {
-        const { data } = msg.data
-        await writer.write(data)
-      } else if (msg.data.type === "done") {
-        console.log("Message done came")
-        await writer.close()
-        console.log("Writer closed")
-      }
-    })
+    setIsGeneratingAssets(true)
 
     worker.postMessage({
       amount: assetsAmount,
@@ -139,15 +156,23 @@ const RandomGenerator = () => {
           <Form.File type="file" name="assetsFile" onChange={handleOnChange} />
         </Col>
         {traitsMap && (
-          <Col sm={3}>
+          <Col sm={4}>
             <InputGroup>
               <FormControl
                 value={assetsAmount}
                 onChange={handleAmountChange}
                 type="number"
+                disabled={isGeneratingAssets}
               />
               <InputGroup.Append>
-                <Button onClick={handleGenerateAssets}>Generate!</Button>
+                <Button
+                  onClick={handleGenerateAssets}
+                  disabled={isGeneratingAssets}
+                >
+                  {isGeneratingAssets
+                    ? "Generating assets ..."
+                    : "Generate assets!"}
+                </Button>
               </InputGroup.Append>
             </InputGroup>
           </Col>

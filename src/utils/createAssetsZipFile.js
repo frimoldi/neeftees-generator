@@ -61,6 +61,7 @@ const generateAssetsZipFile = async (
     self.postMessage({type: "progress", progress: `${i + 1}`})
   }
   zip.end()
+  zip.terminate()
 }
 
 onmessage = async (e) => {
