@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
   Button,
   Col,
-  Form,
   Row,
   InputGroup,
   FormControl,
@@ -74,18 +73,6 @@ const RandomGenerator = ({ assetsFile }: Props) => {
 
     buildTraitsMap()
   }, [assetsFile])
-
-  const handleOnChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.currentTarget.files && e.currentTarget.files.length > 0) {
-      const file = e.currentTarget.files[0]
-
-      const [newTraits, fileMap] = await buildTraitsMapFromZip(file)
-
-      traitFilesMapRef.current = [file, fileMap]
-
-      setTraitsMap(newTraits)
-    }
-  }
 
   const handleDistributionChange = (
     traitName: string,
