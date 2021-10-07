@@ -131,24 +131,3 @@ export const buildTraitsMapFromZip = async (
 
   return [newTraits, fileMap]
 }
-
-export const serializeFileMap = (fileMap: FileMap) => {
-  let serializedFileMap: Record<string, Record<string, string>> = {}
-
-  for (let traitName in fileMap) {
-    let serializedValuesAndFiles: Record<string, string> = {}
-
-    for (let traitValueName in fileMap[traitName]) {
-      serializedValuesAndFiles[traitValueName] =
-        fileMap[traitName][traitValueName].name
-    }
-
-    serializedFileMap[traitName] = {
-      ...serializedValuesAndFiles,
-    }
-  }
-
-  console.log(serializedFileMap)
-
-  return serializedFileMap
-}
