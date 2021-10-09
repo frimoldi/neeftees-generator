@@ -1,25 +1,37 @@
 import React, { useState } from "react"
-import { Stack, Alert, Fade, Collapse } from "react-bootstrap"
+import { Stack, Alert } from "react-bootstrap"
 import { BsFileEarmarkZip } from "react-icons/bs"
+
+import { validateZipFileContent } from "../utils/assetsZipFile"
 
 type Props = {
   onFileDrop: (file: File) => void
 }
 
-type ValidationError = "not-a-zip"
+type ValidationError = "not-a-zip" | "invalid-directory-structure"
 
 const VALID_ZIP_TYPES = ["application/zip", "application/x-gzip"]
 const ZIP_ERROR_MESSAGES: Record<ValidationError, string> = {
   "not-a-zip": "The file must be a .zip",
+  "invalid-directory-structure":
+    "The directory structure is not set up properly.",
 }
 const errorMessageFromError = (error: ValidationError) =>
   ZIP_ERROR_MESSAGES[error]
 
-const validateFile = (file: File): [boolean, ValidationError[]] => {
+const validateFile = async (
+  file: File
+): Promise<[boolean, ValidationError[]]> => {
   let errors: ValidationError[] = []
 
   if (!VALID_ZIP_TYPES.includes(file.type)) {
     errors.push("not-a-zip")
+  } else {
+    const zipIsValid = await validateZipFileContent(file)
+
+    if (!zipIsValid) {
+      errors.push("invalid-directory-structure")
+    }
   }
 
   return [errors.length === 0, errors]
@@ -30,12 +42,12 @@ const FileSelector = ({ onFileDrop }: Props) => {
   const [errorMessageClosed, setErrorMessageClosed] = useState(false)
   const [lastErrorMessage, setLastErrorMessage] = useState<string>()
 
-  const handleDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
+  const handleDrop: React.DragEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault()
     setDraggingOver(false)
 
     const file = e.dataTransfer.files[0]
-    const [fileIsValid, errors] = validateFile(file)
+    const [fileIsValid, errors] = await validateFile(file)
 
     if (fileIsValid) {
       onFileDrop(file)
