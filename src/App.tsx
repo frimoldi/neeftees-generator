@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
 import FileSelector from "./pages/FileSelector"
 import { Container } from "react-bootstrap"

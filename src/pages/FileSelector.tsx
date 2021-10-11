@@ -75,16 +75,29 @@ const FileSelector = ({ onFileDrop }: Props) => {
 
   return (
     <Stack
-      style={{ justifyContent: "center", alignItems: "center", height: "100%" }}
+      style={{
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100%",
+        color: "white",
+      }}
     >
+      <Alert
+        show={!!lastErrorMessage && !errorMessageClosed}
+        onClose={() => setErrorMessageClosed(true)}
+        variant="danger"
+        dismissible
+      >
+        {lastErrorMessage}
+      </Alert>
+      <h4>Drop your zip file down here 👇</h4>
       <div
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         style={{
-          backgroundColor: "#F6F6F6",
-          border: "5px dashed #A4C0D5",
+          border: "1px dashed #A4C0D5",
           width: "70%",
           height: "400px",
           opacity: draggingOver ? 0.5 : 1,
@@ -97,17 +110,7 @@ const FileSelector = ({ onFileDrop }: Props) => {
             height: "100%",
           }}
         >
-          <Alert
-            show={!!lastErrorMessage && !errorMessageClosed}
-            onClose={() => setErrorMessageClosed(true)}
-            variant="danger"
-            dismissible
-          >
-            {lastErrorMessage}
-          </Alert>
-
           <BsFileEarmarkZip size="6em" />
-          <h3>Drop your .zip file right here</h3>
         </Stack>
       </div>
     </Stack>
