@@ -157,8 +157,16 @@ const RandomGenerator = ({ assetsFile }: Props) => {
   return (
     <Col sm={12}>
       <Row style={{ paddingTop: "2em" }}>
-        <Col sm={8}>
+        <Col sm={1}>
           <Image src={Logo} alt="neeftees logo" width={44} />
+        </Col>
+        <Col>
+          <h6>How it works?</h6>
+          <ol>
+            <li>Play with your traits and determine rarity</li>
+            <li>Enter how many assets you want to generate</li>
+            <li>Save it as a .zip file</li>
+          </ol>
         </Col>
         {traitsMap && (
           <Col sm={4}>

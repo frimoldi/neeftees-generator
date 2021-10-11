@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Stack, Alert, Image, Modal, Button } from "react-bootstrap"
+import { Stack, Alert, Image, Modal, Button, Navbar } from "react-bootstrap"
 import { BsFileEarmarkZip } from "react-icons/bs"
 
 import { validateZipFileContent } from "../utils/assetsZipFile"
@@ -78,9 +78,9 @@ const FileSelector = ({ onFileDrop }: Props) => {
   return (
     <Stack
       style={{
-        justifyContent: "center",
         alignItems: "center",
         height: "100%",
+        paddingTop: "2em",
       }}
     >
       <Image src={Logo} width={60} alt="neeftees" />
