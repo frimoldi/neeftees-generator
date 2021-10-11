@@ -121,9 +121,9 @@ const FileSelector = ({ onFileDrop }: Props) => {
         <small>
           The .zip content must be structured properly for the generator to
           work.{" "}
-          <a href="#" onClick={() => setModalOpen(true)}>
+          <Button variant="link" onClick={() => setModalOpen(true)}>
             Learn more about how to do this.
-          </a>
+          </Button>
         </small>
         <Modal centered show={modalOpen}>
           <Modal.Header>
