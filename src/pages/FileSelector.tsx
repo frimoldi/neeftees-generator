@@ -79,7 +79,6 @@ const FileSelector = ({ onFileDrop }: Props) => {
         justifyContent: "center",
         alignItems: "center",
         height: "100%",
-        color: "white",
       }}
     >
       <Alert

@@ -60,18 +60,25 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
     <Tab.Container>
       <Row>
         <Col>
-          <h2>Traits</h2>
-          <ListGroup>
-            {traits.map((trait) => (
-              <ListGroup.Item
-                action
-                href={`#${trait.name}`}
-                key={`${trait.name}-item`}
-              >
-                {trait.name}
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
+          <div
+            style={{
+              backgroundColor: "rgb(35, 38, 53)",
+              padding: "2em",
+            }}
+          >
+            <h2>Traits</h2>
+            <ListGroup>
+              {traits.map((trait) => (
+                <ListGroup.Item
+                  action
+                  href={`#${trait.name}`}
+                  key={`${trait.name}-item`}
+                >
+                  {trait.name}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </div>
         </Col>
         <Col>
           <Tab.Content>
@@ -84,50 +91,41 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
                   eventKey={`#${trait.name}`}
                   key={`${trait.name}-pane`}
                 >
-                  <h2>
-                    {trait.name}
-                    {isOptional && (
-                      <>
+                  <div
+                    style={{
+                      backgroundColor: "rgb(35, 38, 53)",
+                      padding: "2em",
+                    }}
+                  >
+                    <h2>
+                      {trait.name}
+                      {isOptional && (
                         <small className="text-muted"> - optional </small>
-                        <OverlayTrigger
-                          key={`${trait.name}-tooltip`}
-                          overlay={
-                            <Tooltip
-                              id={`${trait.name}-optional`}
-                              placement="left"
-                            >
-                              This trait was marked as 'optional' because the
-                              sum of its values probabilities is less than 100%
-                            </Tooltip>
-                          }
-                        >
-                          <BsInfoCircle />
-                        </OverlayTrigger>
-                      </>
-                    )}
-                  </h2>
-                  <ListGroup>
-                    {Object.values(trait.values).map((value) => (
-                      <ListGroup.Item key={`${value.name}-item`}>
-                        <Row>
-                          <Col>{value.name}</Col>
-                          <Col>
-                            <InputGroup>
-                              <FormControl
-                                value={value.distribution}
-                                type="number"
-                                onChange={handleDistributionChange(
-                                  trait.name,
-                                  value.name
-                                )}
-                              />
-                              <InputGroup.Text>%</InputGroup.Text>
-                            </InputGroup>
-                          </Col>
-                        </Row>
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
+                      )}
+                    </h2>
+                    <ListGroup>
+                      {Object.values(trait.values).map((value) => (
+                        <ListGroup.Item key={`${value.name}-item`}>
+                          <Row>
+                            <Col>{value.name}</Col>
+                            <Col>
+                              <InputGroup>
+                                <FormControl
+                                  value={value.distribution}
+                                  type="number"
+                                  onChange={handleDistributionChange(
+                                    trait.name,
+                                    value.name
+                                  )}
+                                />
+                                <InputGroup.Text>%</InputGroup.Text>
+                              </InputGroup>
+                            </Col>
+                          </Row>
+                        </ListGroup.Item>
+                      ))}
+                    </ListGroup>
+                  </div>
                 </Tab.Pane>
               )
             })}

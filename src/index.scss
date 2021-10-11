@@ -1,11 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap");
 
+$body-bg: #1d1e2b;
+$body-color: #fff;
+
+$primary: #fa5457;
+$secondary: #a4c0d5;
+
+$list-group-bg: transparent;
+$list-group-color: #fff;
+$list-group-hover-bg: #1d1e2b;
+$list-group-action-active-bg: #1d1e2b;
+$list-group-action-hover-color: #fff;
+$list-group-active-bg: shade-color(#1d1e2b, 50%);
+
+$input-group-addon-bg: transparent;
+
 @import "../node_modules/bootstrap/scss/bootstrap";
 
 body {
   margin: 0;
   font-family: "DM Mono", monospace;
-  background-color: #1d1e2b;
 }
 
 code {

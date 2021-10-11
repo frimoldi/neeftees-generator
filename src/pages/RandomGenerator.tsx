@@ -6,12 +6,14 @@ import {
   InputGroup,
   FormControl,
   ProgressBar,
+  Image,
 } from "react-bootstrap"
 import {
   buildTraitsMapFromZip,
   FileMap as TraitFilesMap,
 } from "../utils/NFTRandomGenerator"
 import TraitsList, { Trait, TraitEmptyValue } from "../components/TraitsList"
+import Logo from "../images/neeftees-logo-transparent.png"
 
 // @ts-ignore
 // eslint-disable-next-line
@@ -154,9 +156,13 @@ const RandomGenerator = ({ assetsFile }: Props) => {
 
   return (
     <Col sm={12}>
-      <Row style={{ marginTop: "20px" }}>
+      <Row style={{ paddingTop: "2em" }}>
+        <Col sm={8}>
+          <Image src={Logo} alt="Neeftees" width={44} />
+        </Col>
         {traitsMap && (
           <Col sm={4}>
+            <small>How many assets do you want to generate?</small>
             <InputGroup>
               <FormControl
                 value={assetsAmount}
