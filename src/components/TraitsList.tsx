@@ -6,10 +6,7 @@ import {
   Col,
   InputGroup,
   FormControl,
-  OverlayTrigger,
-  Tooltip,
 } from "react-bootstrap"
-import { BsInfoCircle } from "react-icons/bs"
 
 export type TraitValue = {
   name: string

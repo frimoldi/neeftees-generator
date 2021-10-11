@@ -15,6 +15,9 @@ $list-group-active-bg: shade-color(#1d1e2b, 50%);
 
 $input-group-addon-bg: transparent;
 
+$modal-content-bg: rgb(35, 38, 53);
+$modal-content-color: #fff;
+
 @import "../node_modules/bootstrap/scss/bootstrap";
 
 body {

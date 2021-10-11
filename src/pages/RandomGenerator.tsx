@@ -158,7 +158,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
     <Col sm={12}>
       <Row style={{ paddingTop: "2em" }}>
         <Col sm={8}>
-          <Image src={Logo} alt="Neeftees" width={44} />
+          <Image src={Logo} alt="neeftees logo" width={44} />
         </Col>
         {traitsMap && (
           <Col sm={4}>
