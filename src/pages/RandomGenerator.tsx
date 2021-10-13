@@ -15,6 +15,11 @@ import {
 } from "../utils/NFTRandomGenerator"
 import TraitsList, { Trait, TraitEmptyValue } from "../components/TraitsList"
 import Logo from "../images/neeftees-logo-transparent.png"
+import {
+  logGenerationStarted,
+  logGenerationEnded,
+  logAssetsFileProcessed,
+} from "../utils/analytics/generator"
 
 // @ts-ignore
 // eslint-disable-next-line
@@ -58,6 +63,8 @@ const RandomGenerator = ({ assetsFile }: Props) => {
 
       zipWriter.current = undefined
       setIsGeneratingAssets(false)
+
+      logGenerationEnded()
     }
   }
 
@@ -74,6 +81,13 @@ const RandomGenerator = ({ assetsFile }: Props) => {
       traitFilesMapRef.current = [assetsFile, fileMap]
 
       setTraitsMap(newTraits)
+      logAssetsFileProcessed(
+        Object.values(newTraits).length,
+        Object.values(newTraits).reduce<number>(
+          (s, trait) => s + Object.values(trait.values).length,
+          0
+        )
+      )
     }
 
     buildTraitsMap()
@@ -155,6 +169,8 @@ const RandomGenerator = ({ assetsFile }: Props) => {
       zipFile: file,
       fileHandle: fileHandle,
     })
+
+    logGenerationStarted(assetsAmount)
   }
 
   return (
