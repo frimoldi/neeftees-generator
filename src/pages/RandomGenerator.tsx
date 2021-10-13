@@ -7,6 +7,7 @@ import {
   FormControl,
   ProgressBar,
   Image,
+  Stack,
 } from "react-bootstrap"
 import {
   buildTraitsMapFromZip,
@@ -32,6 +33,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
   const [assetsAmount, setAssetsAmount] = useState(10)
   const [isGeneratingAssets, setIsGeneratingAssets] = useState(false)
   const [progress, setProgress] = useState()
+  const [currentImageBlob, setCurrentImageBlob] = useState<Blob>()
   const traitFilesMapRef = useRef<[File, TraitFilesMap]>()
   const zipWriter = useRef<FileSystemWritableFileStream>()
 
@@ -45,6 +47,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
 
     if (msg.data.type === "progress") {
       setProgress(msg.data.progress)
+      setCurrentImageBlob(msg.data.image)
     } else if (msg.data.type === "data") {
       const { data } = msg.data
       await zipWriter.current.write(data)
@@ -209,11 +212,25 @@ const RandomGenerator = ({ assetsFile }: Props) => {
       <hr />
       <Row>
         <Col sm={12}>
-          {traits && (
+          {traits && !isGeneratingAssets && (
             <TraitsList
               traits={traits}
               onTraitValueDistributionChange={handleDistributionChange}
             />
+          )}
+          {isGeneratingAssets && currentImageBlob && (
+            <Stack
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <Image
+                src={URL.createObjectURL(currentImageBlob)}
+                style={{ maxWidth: "80%" }}
+              />
+            </Stack>
           )}
         </Col>
       </Row>

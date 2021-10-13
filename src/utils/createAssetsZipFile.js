@@ -58,7 +58,7 @@ const generateAssetsZipFile = async (
     metadataFile.push(str2ab(JSON.stringify(metadata)), true)
 
     // eslint-disable-next-line
-    self.postMessage({type: "progress", progress: `${i + 1}`})
+    self.postMessage({type: "progress", progress: `${i + 1}`, image})
   }
   zip.end()
   zip.terminate()
