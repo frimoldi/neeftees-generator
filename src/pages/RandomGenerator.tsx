@@ -8,7 +8,10 @@ import {
   ProgressBar,
   Image,
   Stack,
+  Modal,
 } from "react-bootstrap"
+import { BsTwitter } from "react-icons/bs"
+import { FaEthereum } from "react-icons/fa"
 import {
   buildTraitsMapFromZip,
   FileMap as TraitFilesMap,
@@ -20,6 +23,7 @@ import {
   logGenerationEnded,
   logAssetsFileProcessed,
 } from "../utils/analytics/generator"
+import { logTwitterClick } from "../utils/analytics/general"
 
 // @ts-ignore
 // eslint-disable-next-line
@@ -38,6 +42,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
   const [assetsAmount, setAssetsAmount] = useState(10)
   const [isGeneratingAssets, setIsGeneratingAssets] = useState(false)
   const [progress, setProgress] = useState()
+  const [finishedModalOpen, setFinishedModalOpen] = useState(false)
   const [currentImageBlob, setCurrentImageBlob] = useState<Blob>()
   const traitFilesMapRef = useRef<[File, TraitFilesMap]>()
   const zipWriter = useRef<FileSystemWritableFileStream>()
@@ -64,6 +69,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
       zipWriter.current = undefined
       setIsGeneratingAssets(false)
 
+      setFinishedModalOpen(true)
       logGenerationEnded()
     }
   }
@@ -174,84 +180,123 @@ const RandomGenerator = ({ assetsFile }: Props) => {
   }
 
   return (
-    <Col sm={12}>
-      <Row style={{ paddingTop: "2em" }}>
-        <Col sm={1}>
-          <Image src={Logo} alt="neeftees logo" width={44} />
-        </Col>
-        <Col>
-          <h6>How it works?</h6>
-          <ol>
-            <li>Play with your traits and determine rarity</li>
-            <li>Enter how many assets you want to generate</li>
-            <li>Save it as a .zip file</li>
-          </ol>
-        </Col>
-        {traitsMap && (
-          <Col sm={4}>
-            <small>How many assets do you want to generate?</small>
-            <InputGroup>
-              <FormControl
-                value={assetsAmount}
-                onChange={handleAmountChange}
-                type="number"
-                disabled={isGeneratingAssets}
-              />
-
-              <Button
-                onClick={handleGenerateAssets}
-                disabled={isGeneratingAssets}
-              >
-                {isGeneratingAssets
-                  ? "Generating assets ..."
-                  : "Generate assets!"}
-              </Button>
-            </InputGroup>
-            <small>Note: remember to save your file as a .zip or similar</small>
-          </Col>
-        )}
-      </Row>
-      <Row style={{ marginTop: "20px" }}>
-        <Col>
-          {isGeneratingAssets && progress && (
-            <ProgressBar
-              now={(progress / assetsAmount) * 100}
-              label={
-                progress < assetsAmount
-                  ? `${progress}/${assetsAmount}`
-                  : `Done! Generated ${assetsAmount} assets`
-              }
-              variant={progress < assetsAmount ? "info" : "success"}
-            />
-          )}
-        </Col>
-      </Row>
-      <hr />
-      <Row>
-        <Col sm={12}>
-          {traits && !isGeneratingAssets && (
-            <TraitsList
-              traits={traits}
-              onTraitValueDistributionChange={handleDistributionChange}
-            />
-          )}
-          {isGeneratingAssets && currentImageBlob && (
-            <Stack
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
+    <>
+      <Modal centered show={finishedModalOpen}>
+        <Modal.Header>
+          <h2>Congrats!</h2>
+        </Modal.Header>
+        <Modal.Body>
+          <p>
+            You just randomly generated {assetsAmount} images based on your
+            traits and values, along with their metadata files.
+          </p>
+          <p>You can now go and check them out!</p>
+          <p>
+            Ah, if you found this tool useful, please consider giving me a tip
+            at the ETH address down below. Also, a shout out on twitter would
+            make my day 🙂
+          </p>
+          <p>
+            <a
+              href="https://twitter.com/fran_rimoldi"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => logTwitterClick()}
             >
-              <Image
-                src={URL.createObjectURL(currentImageBlob)}
-                style={{ maxWidth: "80%" }}
-              />
-            </Stack>
+              <BsTwitter /> @fran_rimoldi
+            </a>
+          </p>
+          <p>
+            <small>
+              <FaEthereum /> frimoldi.eth
+            </small>
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setFinishedModalOpen(false)}>OK</Button>
+        </Modal.Footer>
+      </Modal>
+      <Col sm={12}>
+        <Row style={{ paddingTop: "2em" }}>
+          <Col sm={1}>
+            <Image src={Logo} alt="neeftees logo" width={44} />
+          </Col>
+          <Col>
+            <h6>How it works?</h6>
+            <ol>
+              <li>Play with your traits and determine rarity</li>
+              <li>Enter how many assets you want to generate</li>
+              <li>Save it as a .zip file</li>
+            </ol>
+          </Col>
+          {traitsMap && (
+            <Col sm={4}>
+              <small>How many assets do you want to generate?</small>
+              <InputGroup>
+                <FormControl
+                  value={assetsAmount}
+                  onChange={handleAmountChange}
+                  type="number"
+                  disabled={isGeneratingAssets}
+                />
+
+                <Button
+                  onClick={handleGenerateAssets}
+                  disabled={isGeneratingAssets}
+                >
+                  {isGeneratingAssets
+                    ? "Generating assets ..."
+                    : "Generate assets!"}
+                </Button>
+              </InputGroup>
+              <small>
+                Note: remember to save your file as a .zip or similar
+              </small>
+            </Col>
           )}
-        </Col>
-      </Row>
-    </Col>
+        </Row>
+        <Row style={{ marginTop: "20px" }}>
+          <Col>
+            {isGeneratingAssets && progress && (
+              <ProgressBar
+                now={(progress / assetsAmount) * 100}
+                label={
+                  progress < assetsAmount
+                    ? `${progress}/${assetsAmount}`
+                    : `Done! Generated ${assetsAmount} assets`
+                }
+                variant={progress < assetsAmount ? "info" : "success"}
+              />
+            )}
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+          <Col sm={12}>
+            {traits && !isGeneratingAssets && (
+              <TraitsList
+                traits={traits}
+                onTraitValueDistributionChange={handleDistributionChange}
+              />
+            )}
+            {isGeneratingAssets && currentImageBlob && (
+              <Stack
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100%",
+                }}
+              >
+                <Image
+                  src={URL.createObjectURL(currentImageBlob)}
+                  style={{ maxWidth: "80%" }}
+                />
+              </Stack>
+            )}
+          </Col>
+        </Row>
+      </Col>
+    </>
   )
 }
 
