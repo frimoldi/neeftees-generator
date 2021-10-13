@@ -196,12 +196,12 @@ const RandomGenerator = ({ assetsFile }: Props) => {
       </Row>
       <Row style={{ marginTop: "20px" }}>
         <Col>
-          {progress && (
+          {isGeneratingAssets && progress && (
             <ProgressBar
               now={(progress / assetsAmount) * 100}
               label={
                 progress < assetsAmount
-                  ? `Generating assets: ${progress}/${assetsAmount}`
+                  ? `${progress}/${assetsAmount}`
                   : `Done! Generated ${assetsAmount} assets`
               }
               variant={progress < assetsAmount ? "info" : "success"}
