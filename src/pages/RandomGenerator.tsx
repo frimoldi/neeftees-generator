@@ -191,6 +191,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
                   : "Generate assets!"}
               </Button>
             </InputGroup>
+            <small>Note: remember to save your file as a .zip or similar</small>
           </Col>
         )}
       </Row>
