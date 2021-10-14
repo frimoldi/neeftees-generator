@@ -8,8 +8,6 @@ import { initialize as initializeAnalytics } from "./utils/analytics"
 
 initializeAnalytics(process.env.NODE_ENV)
 
-console.log(process.env.NODE_ENV)
-
 ReactDOM.render(
   <React.StrictMode>
     <App />

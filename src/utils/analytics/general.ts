@@ -1,3 +1,4 @@
 export const logTwitterClick = () => {
-  console.log("Twitter handle click")
+  // @ts-ignore
+  window.heap.track("Twitter handle click")
 }

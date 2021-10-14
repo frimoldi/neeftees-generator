@@ -1,16 +1,17 @@
 export const logGenerationStarted = (numberOfAssets: number) => {
-  console.log("Generator started: ", numberOfAssets)
+  // @ts-ignore
+  window.heap.track("Generation started", { numberOfAssets })
 }
 
 export const logGenerationEnded = () => {
-  console.log("Generator ended")
+  // @ts-ignore
+  window.heap.track("Generator ended")
 }
 
 export const logAssetsFileProcessed = (
   numberOfTraits: number,
   numberOfValues: number
 ) => {
-  console.log("Assets file processed:")
-  console.log("- number of traits: ", numberOfTraits)
-  console.log("- number of values: ", numberOfValues)
+  // @ts-ignore
+  window.heap.track("Assets file processed", { numberOfTraits, numberOfValues })
 }
