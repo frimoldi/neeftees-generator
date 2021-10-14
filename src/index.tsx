@@ -4,6 +4,10 @@ import "./index.scss"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
 
+import { initialize as initializeAnalytics } from "./utils/analytics"
+
+initializeAnalytics(process.env.NODE_ENV)
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
