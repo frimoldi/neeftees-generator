@@ -1,6 +1,6 @@
 export const logGenerationStarted = (numberOfAssets: number) => {
   // @ts-ignore
-  window.heap.track("Generation started", { numberOfAssets })
+  window.heap.track("Generator started", { numberOfAssets })
 }
 
 export const logGenerationEnded = () => {
