@@ -69,8 +69,11 @@ export const buildTraitsMapFromZip = async (
   let fileMap: FileMap = {}
 
   zip
-    .filter((relativePath, zipEntry) => {
-      return !relativePath.startsWith("__MACOSX")
+    .filter((relativePath) => {
+      return (
+        !relativePath.startsWith("__MACOSX") &&
+        !relativePath.endsWith(".DS_Store")
+      )
     })
     .forEach((file) => {
       if (file.dir) {

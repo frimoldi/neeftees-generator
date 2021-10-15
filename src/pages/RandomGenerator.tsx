@@ -62,9 +62,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
       const { data } = msg.data
       await zipWriter.current.write(data)
     } else if (msg.data.type === "done") {
-      console.log("Message done came")
       await zipWriter.current.close()
-      console.log("Writer closed")
 
       zipWriter.current = undefined
       setIsGeneratingAssets(false)
@@ -162,8 +160,6 @@ const RandomGenerator = ({ assetsFile }: Props) => {
     const writer = await fileHandle.createWritable()
 
     zipWriter.current = writer
-
-    console.log("Random generation started")
 
     const [file] = traitFilesMapRef.current
 
