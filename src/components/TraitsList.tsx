@@ -19,6 +19,7 @@ export type TraitEmptyValue = TraitValue & {
 
 export type Trait = {
   name: string
+  displayName: string
   values: Record<string, TraitValue | TraitEmptyValue>
 }
 export type Traits = Trait[]
@@ -68,10 +69,10 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
               {traits.map((trait) => (
                 <ListGroup.Item
                   action
-                  href={`#${trait.name}`}
-                  key={`${trait.name}-item`}
+                  href={`#${trait.displayName}`}
+                  key={`${trait.displayName}-item`}
                 >
-                  {trait.name}
+                  {trait.displayName}
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -85,8 +86,8 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
               )
               return (
                 <Tab.Pane
-                  eventKey={`#${trait.name}`}
-                  key={`${trait.name}-pane`}
+                  eventKey={`#${trait.displayName}`}
+                  key={`${trait.displayName}-pane`}
                 >
                   <div
                     style={{
@@ -95,7 +96,7 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
                     }}
                   >
                     <h2>
-                      {trait.name}
+                      {trait.displayName}
                       {isOptional && (
                         <small className="text-muted"> - optional </small>
                       )}

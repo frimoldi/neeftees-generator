@@ -40,7 +40,7 @@ const buildRandomAtrributes = (traits: Trait[]): NFTAttribute[] => {
       selectedAttributes = [
         ...selectedAttributes,
         {
-          trait_type: traits[i].name,
+          trait_type: traits[i].displayName,
           value: weightedValues[randomIndex],
         },
       ]
@@ -83,6 +83,7 @@ export const buildTraitsMapFromZip = async (
           ...newTraits,
           [traitName]: {
             name: traitName,
+            displayName: traitName.replace(/^\d+\s*/, ""),
             values: {},
           },
         }
@@ -122,10 +123,11 @@ export const buildTraitsMapFromZip = async (
           },
         }
 
+        const traitDisplayName = traitName.replace(/^\d+\s*/, "")
         fileMap = {
           ...fileMap,
-          [traitName]: {
-            ...fileMap[traitName],
+          [traitDisplayName]: {
+            ...fileMap[traitDisplayName],
             [newValueName]: file,
           },
         }

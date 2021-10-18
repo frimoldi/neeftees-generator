@@ -48,7 +48,9 @@ const RandomGenerator = ({ assetsFile }: Props) => {
   const zipWriter = useRef<FileSystemWritableFileStream>()
 
   const traits = useMemo(
-    () => traitsMap && Object.values(traitsMap),
+    () =>
+      traitsMap &&
+      Object.values(traitsMap).sort((a, b) => (a.name > b.name ? 1 : -1)),
     [traitsMap]
   )
 

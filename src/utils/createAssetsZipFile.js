@@ -24,11 +24,12 @@ const generateAssetsZipFile = async (
     .forEach((file) => {
       if (!file.dir) {
         const [traitName, valueName] = file.name.split("/")
+        const traitDisplayName = traitName.replace(/^\d+\s*/, "")
         const newValueName = valueName.substring(0, valueName.lastIndexOf("."))
         fileMap = {
           ...fileMap,
-          [traitName]: {
-            ...fileMap[traitName],
+          [traitDisplayName]: {
+            ...fileMap[traitDisplayName],
             [newValueName]: file,
           },
         }
