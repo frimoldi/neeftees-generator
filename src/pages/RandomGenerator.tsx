@@ -84,7 +84,7 @@ const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
     worker.addEventListener("message", handleWorkerMessage)
 
     return () => worker.removeEventListener("message", handleWorkerMessage)
-  }, [])
+  }, [handleWorkerMessage])
 
   useEffect(() => {
     const buildTraitsMap = async () => {

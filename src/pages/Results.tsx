@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import JSZip, { JSZipObject } from "jszip"
-import { Col, Row, Image, ListGroup, ListGroupItem } from "react-bootstrap"
+import { Col, Row, Image, ListGroup } from "react-bootstrap"
 
 import Logo from "../images/neeftees-logo-transparent.png"
 
@@ -14,7 +14,7 @@ const Results = ({ file }: ResultsProps) => {
   const [assetsMetadata, setAssetsMetadata] =
     useState<Record<string, string>[]>()
   const [isLoading, setIsLoading] = useState(false)
-  const [imageFiles, setImageFiles] = useState<JSZipObject[]>()
+  // const [imageFiles, setImageFiles] = useState<JSZipObject[]>()
   const [stats, setStats] = useState<Stats>()
   const [duplicates, setDuplicates] = useState(0)
 
@@ -65,7 +65,7 @@ const Results = ({ file }: ResultsProps) => {
       }
 
       setAssetsMetadata(metadata)
-      setImageFiles(images)
+      // setImageFiles(images)
       setStats(stats)
       setDuplicates(duplicatesFound)
       setIsLoading(false)
