@@ -11,29 +11,35 @@ type ResultsProps = {
 type Stats = Record<string, Record<string, number>>
 
 const Results = ({ file }: ResultsProps) => {
-  const [metadataFiles, setMetadataFiles] = useState<JSZipObject[]>()
+  const [assetsMetadata, setAssetsMetadata] =
+    useState<Record<string, string>[]>()
   const [imageFiles, setImageFiles] = useState<JSZipObject[]>()
   const [stats, setStats] = useState<Stats>()
+  const [duplicates, setDuplicates] = useState(0)
 
   useEffect(() => {
     const loadZipFile = async () => {
       const zip = await JSZip.loadAsync(file)
 
-      const metadata: JSZipObject[] = []
+      const metadata: Record<string, string>[] = []
       const images: JSZipObject[] = []
       let stats: Stats = {}
+      let assetsMetadataKeys: string[] = []
+      let duplicatesFound = 0
 
       for (let [fileName, file] of Object.entries(zip.files)) {
         if (fileName.endsWith(".png")) {
           images.push(file)
         } else {
-          metadata.push(file)
           const res = await file.async("string")
           const metadataJSON = JSON.parse(res)
+          metadata.push(metadataJSON)
 
           let metadataStats = stats
+          let assetMetadataKey = ""
           metadataJSON.forEach(
             ({ trait_type, value }: { trait_type: string; value: string }) => {
+              assetMetadataKey += `${trait_type}:${value};`
               metadataStats = {
                 ...metadataStats,
                 [trait_type]: {
@@ -45,13 +51,21 @@ const Results = ({ file }: ResultsProps) => {
               }
             }
           )
+
+          if (assetsMetadataKeys.includes(assetMetadataKey)) {
+            duplicatesFound++
+          } else {
+            assetsMetadataKeys.push(assetMetadataKey)
+          }
+
           stats = metadataStats
         }
       }
 
-      setMetadataFiles(metadata)
+      setAssetsMetadata(metadata)
       setImageFiles(images)
       setStats(stats)
+      setDuplicates(duplicatesFound)
     }
 
     loadZipFile()
@@ -74,6 +88,14 @@ const Results = ({ file }: ResultsProps) => {
         </Col>
       </Row>
       <hr />
+      <Row>
+        <ul>
+          <li>{`Total #: ${assetsMetadata?.length}`}</li>
+          <li>{`Duplicates: ${duplicates} ${
+            duplicates === 0 ? "✅" : "🔴"
+          }`}</li>
+        </ul>
+      </Row>
       <Row>
         <Col>
           {stats && (
