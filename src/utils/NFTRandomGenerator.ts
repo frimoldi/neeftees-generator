@@ -16,9 +16,9 @@ const buildImageFromAttributes = async (
   files: FileMap
 ): Promise<Blob> => {
   const traitFilesImageContents = await Promise.all(
-    attributes.map(({ trait_type, value }) =>
-      files[trait_type][value].async("base64")
-    )
+    attributes
+      .filter(({ value }) => value !== "none")
+      .map(({ trait_type, value }) => files[trait_type][value].async("base64"))
   )
 
   const mergedImage = await mergeImages(traitFilesImageContents)
@@ -36,15 +36,13 @@ const buildRandomAtrributes = (traits: Trait[]): NFTAttribute[] => {
     )
     const randomIndex = Math.floor(Math.random() * weightedValues.length)
 
-    if (weightedValues[randomIndex] !== "none") {
-      selectedAttributes = [
-        ...selectedAttributes,
-        {
-          trait_type: traits[i].displayName,
-          value: weightedValues[randomIndex],
-        },
-      ]
-    }
+    selectedAttributes = [
+      ...selectedAttributes,
+      {
+        trait_type: traits[i].displayName,
+        value: weightedValues[randomIndex],
+      },
+    ]
   }
 
   return selectedAttributes
