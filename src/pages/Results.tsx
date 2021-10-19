@@ -13,12 +13,14 @@ type Stats = Record<string, Record<string, number>>
 const Results = ({ file }: ResultsProps) => {
   const [assetsMetadata, setAssetsMetadata] =
     useState<Record<string, string>[]>()
+  const [isLoading, setIsLoading] = useState(false)
   const [imageFiles, setImageFiles] = useState<JSZipObject[]>()
   const [stats, setStats] = useState<Stats>()
   const [duplicates, setDuplicates] = useState(0)
 
   useEffect(() => {
     const loadZipFile = async () => {
+      setIsLoading(true)
       const zip = await JSZip.loadAsync(file)
 
       const metadata: Record<string, string>[] = []
@@ -66,6 +68,7 @@ const Results = ({ file }: ResultsProps) => {
       setImageFiles(images)
       setStats(stats)
       setDuplicates(duplicatesFound)
+      setIsLoading(false)
     }
 
     loadZipFile()
@@ -84,7 +87,9 @@ const Results = ({ file }: ResultsProps) => {
           <Image src={Logo} alt="neeftees logo" width={50} />
         </Col>
         <Col>
-          <h1>Results & stats</h1>
+          <h1>
+            {isLoading ? "Loading results & stats ..." : "Results & stats"}
+          </h1>
         </Col>
       </Row>
       <hr />
