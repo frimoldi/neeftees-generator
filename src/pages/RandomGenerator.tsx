@@ -35,9 +35,10 @@ type TraitsMap = Record<string, Trait>
 
 type Props = {
   assetsFile: File
+  onFinish: (file: File) => void
 }
 
-const RandomGenerator = ({ assetsFile }: Props) => {
+const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
   const [traitsMap, setTraitsMap] = useState<TraitsMap>()
   const [assetsAmount, setAssetsAmount] = useState(10)
   const [isGeneratingAssets, setIsGeneratingAssets] = useState(false)
@@ -46,6 +47,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
   const [currentImageBlob, setCurrentImageBlob] = useState<Blob>()
   const traitFilesMapRef = useRef<[File, TraitFilesMap]>()
   const zipWriter = useRef<FileSystemWritableFileStream>()
+  const resultsFileHandle = useRef<FileSystemFileHandle>()
 
   const traits = useMemo(
     () =>
@@ -71,6 +73,10 @@ const RandomGenerator = ({ assetsFile }: Props) => {
 
       setFinishedModalOpen(true)
       logGenerationEnded()
+
+      const resultsFile = await resultsFileHandle.current?.getFile()
+      resultsFile && onFinish(resultsFile)
+      console.log(resultsFile)
     }
   }
 
@@ -161,6 +167,7 @@ const RandomGenerator = ({ assetsFile }: Props) => {
     const fileHandle = await window.showSaveFilePicker()
     const writer = await fileHandle.createWritable()
 
+    resultsFileHandle.current = fileHandle
     zipWriter.current = writer
 
     const [file] = traitFilesMapRef.current
