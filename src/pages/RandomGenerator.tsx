@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react"
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import {
   Button,
   Col,
@@ -56,29 +56,32 @@ const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
     [traitsMap]
   )
 
-  const handleWorkerMessage = async (msg: MessageEvent) => {
-    if (!zipWriter.current) return
+  const handleWorkerMessage = useCallback(
+    async (msg: MessageEvent) => {
+      if (!zipWriter.current) return
 
-    if (msg.data.type === "progress") {
-      setProgress(msg.data.progress)
-      setCurrentImageBlob(msg.data.image)
-    } else if (msg.data.type === "data") {
-      const { data } = msg.data
-      await zipWriter.current.write(data)
-    } else if (msg.data.type === "done") {
-      await zipWriter.current.close()
+      if (msg.data.type === "progress") {
+        setProgress(msg.data.progress)
+        setCurrentImageBlob(msg.data.image)
+      } else if (msg.data.type === "data") {
+        const { data } = msg.data
+        await zipWriter.current.write(data)
+      } else if (msg.data.type === "done") {
+        await zipWriter.current.close()
 
-      zipWriter.current = undefined
-      setIsGeneratingAssets(false)
+        zipWriter.current = undefined
+        setIsGeneratingAssets(false)
 
-      setFinishedModalOpen(true)
-      logGenerationEnded()
+        setFinishedModalOpen(true)
+        logGenerationEnded()
 
-      const resultsFile = await resultsFileHandle.current?.getFile()
-      resultsFile && onFinish(resultsFile)
-      console.log(resultsFile)
-    }
-  }
+        const resultsFile = await resultsFileHandle.current?.getFile()
+        resultsFile && onFinish(resultsFile)
+        console.log(resultsFile)
+      }
+    },
+    [onFinish]
+  )
 
   useEffect(() => {
     worker.addEventListener("message", handleWorkerMessage)
