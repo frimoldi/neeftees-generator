@@ -74,7 +74,7 @@ async function generateNonDuplicateImage(traits, fileMap, metadataKeys, attempt 
   let [image, metadata] = await generateRandomImage(traits, fileMap)
   let metadataKey = metadata.reduce((k, { trait_type, value }) => k +`${trait_type}:${value};`, "")
 
-  if (metadataKeys.includes(metadataKey)) {
+  if (metadataKeys.includes(metadataKey) && attempt < 100) {
     return await generateNonDuplicateImage(traits, fileMap, metadataKeys, attempt + 1)
   }
 
