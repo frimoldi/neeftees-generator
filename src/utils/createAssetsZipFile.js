@@ -46,8 +46,12 @@ const generateAssetsZipFile = async (
     }
   }
 
+  const metadataKeys = []
   for (let i = 0; i < amount; i++) {
-    const [image, metadata] = await generateRandomImage(traits, fileMap)
+    const [image, metadata, metadataKey] = await generateNonDuplicateImage(traits, fileMap, metadataKeys)
+
+    metadataKeys.push(metadataKey)
+
     const imageBuffer = await image.arrayBuffer()
     const imageChunk = new Uint8Array(imageBuffer)
     const imageFile = new ZipPassThrough(`${i + 1}.png`)
@@ -63,6 +67,18 @@ const generateAssetsZipFile = async (
   }
   zip.end()
   zip.terminate()
+}
+
+async function generateNonDuplicateImage(traits, fileMap, metadataKeys, attempt = 1) {
+  console.log(`attempt ${attempt}`)
+  let [image, metadata] = await generateRandomImage(traits, fileMap)
+  let metadataKey = metadata.reduce((k, { trait_type, value }) => k +`${trait_type}:${value};`, "")
+
+  if (metadataKeys.includes(metadataKey)) {
+    return await generateNonDuplicateImage(traits, fileMap, metadataKeys, attempt + 1)
+  }
+
+  return [image, metadata, metadataKey]
 }
 
 onmessage = async (e) => {
