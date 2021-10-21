@@ -82,6 +82,7 @@ export const buildTraitsMapFromZip = async (
           [traitName]: {
             name: traitName,
             displayName: traitName.replace(/^\d+\s*/, ""),
+            virtual: false,
             values: {},
           },
         }

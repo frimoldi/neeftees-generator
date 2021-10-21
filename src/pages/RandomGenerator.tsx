@@ -159,6 +159,20 @@ const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
     setTraitsMap(updatedTraits)
   }
 
+  const handleVirtualityChange = (traitName: string, virtual: boolean) => {
+    if (!traitsMap) return
+
+    const updatedTraits = {
+      ...traitsMap,
+      [traitName]: {
+        ...traitsMap[traitName],
+        virtual,
+      },
+    }
+
+    setTraitsMap(updatedTraits)
+  }
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAssetsAmount(e.target.valueAsNumber)
   }
@@ -285,6 +299,7 @@ const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
               <TraitsList
                 traits={traits}
                 onTraitValueDistributionChange={handleDistributionChange}
+                onTraitVirtualityChange={handleVirtualityChange}
               />
             )}
             {isGeneratingAssets && currentImageBlob && (

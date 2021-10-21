@@ -6,7 +6,9 @@ import {
   Col,
   InputGroup,
   FormControl,
+  Button,
 } from "react-bootstrap"
+import { BsExclude } from "react-icons/bs"
 
 export type TraitValue = {
   name: string
@@ -20,6 +22,7 @@ export type TraitEmptyValue = TraitValue & {
 export type Trait = {
   name: string
   displayName: string
+  virtual: boolean
   values: Record<string, TraitValue | TraitEmptyValue>
 }
 export type Traits = Trait[]
@@ -31,9 +34,14 @@ type Props = {
     traitValueName: string,
     distribution: number
   ) => void
+  onTraitVirtualityChange: (traitName: string, virtual: boolean) => void
 }
 
-const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
+const TraitsList = ({
+  traits,
+  onTraitValueDistributionChange,
+  onTraitVirtualityChange,
+}: Props) => {
   const handleDistributionChange = (
     traitName: string,
     traitValueName: string
@@ -72,7 +80,23 @@ const TraitsList = ({ traits, onTraitValueDistributionChange }: Props) => {
                   href={`#${trait.displayName}`}
                   key={`${trait.displayName}-item`}
                 >
-                  {trait.displayName}
+                  <Row>
+                    <Col sm={1}>
+                      <Button
+                        style={{
+                          opacity: trait.virtual ? 1 : 0.3,
+                        }}
+                        variant="outline-light"
+                        size="sm"
+                        onClick={() =>
+                          onTraitVirtualityChange(trait.name, !trait.virtual)
+                        }
+                      >
+                        <BsExclude />
+                      </Button>
+                    </Col>
+                    <Col>{trait.displayName}</Col>
+                  </Row>
                 </ListGroup.Item>
               ))}
             </ListGroup>
