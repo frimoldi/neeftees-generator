@@ -16,7 +16,6 @@ const Results = ({ file, traitsMap }: ResultsProps) => {
   const [assetsMetadata, setAssetsMetadata] =
     useState<Record<string, string>[]>()
   const [isLoading, setIsLoading] = useState(false)
-  // const [imageFiles, setImageFiles] = useState<JSZipObject[]>()
   const [stats, setStats] = useState<Stats>()
   const [duplicates, setDuplicates] = useState(0)
 
@@ -78,7 +77,6 @@ const Results = ({ file, traitsMap }: ResultsProps) => {
       }
 
       setAssetsMetadata(metadata)
-      // setImageFiles(images)
       setStats(stats)
       setDuplicates(duplicatesFound)
       setIsLoading(false)
