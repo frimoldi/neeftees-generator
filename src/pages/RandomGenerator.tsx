@@ -78,7 +78,6 @@ const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
 
         const resultsFile = await resultsFileHandle.current?.getFile()
         resultsFile && onFinish(resultsFile, traitsMap)
-        console.log(resultsFile)
       }
     },
     [onFinish, traitsMap]
