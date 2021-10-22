@@ -47,9 +47,13 @@ const generateAssetsZipFile = async (
   }
 
   const metadataKeys = []
+  let duplicateFound = false
   for (let i = 0; i < amount; i++) {
-    const [image, metadata, metadataKey] = await generateNonDuplicateImage(traits, fileMap, metadataKeys)
+    const [image, metadata, metadataKey, duplicate] = await generateNonDuplicateImage(traits, fileMap, metadataKeys, !duplicateFound)
 
+    duplicateFound = duplicateFound || duplicate
+    console.log(duplicate)
+    console.log(duplicateFound)
     metadataKeys.push(metadataKey)
 
     const imageBuffer = await image.arrayBuffer()
@@ -69,18 +73,21 @@ const generateAssetsZipFile = async (
   zip.terminate()
 }
 
-async function generateNonDuplicateImage(traits, fileMap, metadataKeys, attempt = 1) {
-  console.log(`attempt ${attempt}`)
+async function generateNonDuplicateImage(traits, fileMap, metadataKeys, avoidDuplicates = true, attempt = 1) {
   let [image, metadata] = await generateRandomImage(traits, fileMap)
   const virtualTraitNames = traits.filter(({ virtual }) => virtual).map(({ displayName }) => displayName)
-  console.log(traits)
   let metadataKey = metadata.filter(({ trait_type }) => !virtualTraitNames.includes(trait_type)).reduce((k, { trait_type, value }) => k +`${trait_type}:${value};`, "")
+  let duplicate = false
 
-  if (metadataKeys.includes(metadataKey) && attempt < 100) {
-    return await generateNonDuplicateImage(traits, fileMap, metadataKeys, attempt + 1)
+  if (avoidDuplicates && metadataKeys.includes(metadataKey)) {
+    if (attempt < 15) {
+      return await generateNonDuplicateImage(traits, fileMap, metadataKeys, avoidDuplicates, attempt + 1)
+    } else {
+      duplicate = true
+    }
   }
 
-  return [image, metadata, metadataKey]
+  return [image, metadata, metadataKey, duplicate]
 }
 
 onmessage = async (e) => {
