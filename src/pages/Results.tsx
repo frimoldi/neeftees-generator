@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState } from "react"
 import JSZip, { JSZipObject } from "jszip"
 import { Col, Row, Image, ListGroup } from "react-bootstrap"
 
@@ -20,8 +20,13 @@ const Results = ({ file, traitsMap }: ResultsProps) => {
   const [stats, setStats] = useState<Stats>()
   const [duplicates, setDuplicates] = useState(0)
 
-  const findTraitByDisplayName = (displayName: string) =>
-    Object.values(traitsMap).find(({ displayName: ds }) => ds === displayName)
+  const findTraitByDisplayName = useCallback(
+    (displayName: string) =>
+      Object.values(traitsMap).find(
+        ({ displayName: ds }) => ds === displayName
+      ),
+    [traitsMap]
+  )
 
   useEffect(() => {
     const loadZipFile = async () => {
@@ -80,7 +85,7 @@ const Results = ({ file, traitsMap }: ResultsProps) => {
     }
 
     loadZipFile()
-  }, [file])
+  }, [file, findTraitByDisplayName])
 
   return (
     <Col sm={12}>
