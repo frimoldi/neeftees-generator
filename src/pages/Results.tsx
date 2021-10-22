@@ -3,20 +3,25 @@ import JSZip, { JSZipObject } from "jszip"
 import { Col, Row, Image, ListGroup } from "react-bootstrap"
 
 import Logo from "../images/neeftees-logo-transparent.png"
+import { TraitsMap } from "./RandomGenerator"
 
 type ResultsProps = {
   file: File
+  traitsMap: TraitsMap
 }
 
 type Stats = Record<string, Record<string, number>>
 
-const Results = ({ file }: ResultsProps) => {
+const Results = ({ file, traitsMap }: ResultsProps) => {
   const [assetsMetadata, setAssetsMetadata] =
     useState<Record<string, string>[]>()
   const [isLoading, setIsLoading] = useState(false)
   // const [imageFiles, setImageFiles] = useState<JSZipObject[]>()
   const [stats, setStats] = useState<Stats>()
   const [duplicates, setDuplicates] = useState(0)
+
+  const findTraitByDisplayName = (displayName: string) =>
+    Object.values(traitsMap).find(({ displayName: ds }) => ds === displayName)
 
   useEffect(() => {
     const loadZipFile = async () => {
@@ -41,7 +46,10 @@ const Results = ({ file }: ResultsProps) => {
           let assetMetadataKey = ""
           metadataJSON.forEach(
             ({ trait_type, value }: { trait_type: string; value: string }) => {
-              assetMetadataKey += `${trait_type}:${value};`
+              const trait = findTraitByDisplayName(trait_type)
+              if (!trait?.virtual) {
+                assetMetadataKey += `${trait_type}:${value};`
+              }
               metadataStats = {
                 ...metadataStats,
                 [trait_type]: {

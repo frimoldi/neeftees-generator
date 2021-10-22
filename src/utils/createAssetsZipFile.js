@@ -52,8 +52,6 @@ const generateAssetsZipFile = async (
     const [image, metadata, metadataKey, duplicate] = await generateNonDuplicateImage(traits, fileMap, metadataKeys, !duplicateFound)
 
     duplicateFound = duplicateFound || duplicate
-    console.log(duplicate)
-    console.log(duplicateFound)
     metadataKeys.push(metadataKey)
 
     const imageBuffer = await image.arrayBuffer()

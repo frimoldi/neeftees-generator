@@ -31,11 +31,11 @@ import Worker from "worker-loader!../utils/createAssetsZipFile.js"
 
 const worker = new Worker()
 
-type TraitsMap = Record<string, Trait>
+export type TraitsMap = Record<string, Trait>
 
 type Props = {
   assetsFile: File
-  onFinish: (file: File) => void
+  onFinish: (file: File, traitsMap: TraitsMap) => void
 }
 
 const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
@@ -59,6 +59,7 @@ const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
   const handleWorkerMessage = useCallback(
     async (msg: MessageEvent) => {
       if (!zipWriter.current) return
+      if (!traitsMap) return
 
       if (msg.data.type === "progress") {
         setProgress(msg.data.progress)
@@ -76,11 +77,11 @@ const RandomGenerator = ({ assetsFile, onFinish }: Props) => {
         logGenerationEnded()
 
         const resultsFile = await resultsFileHandle.current?.getFile()
-        resultsFile && onFinish(resultsFile)
+        resultsFile && onFinish(resultsFile, traitsMap)
         console.log(resultsFile)
       }
     },
-    [onFinish]
+    [onFinish, traitsMap]
   )
 
   useEffect(() => {
