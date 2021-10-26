@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { Stack, Alert, Image, Modal, Button } from "react-bootstrap"
+import { useHistory } from "react-router-dom"
 import { BsFileEarmarkZip } from "react-icons/bs"
 
 import { validateZipFileContent } from "../utils/assetsZipFile"
@@ -43,6 +44,7 @@ const FileSelector = ({ onFileDrop }: Props) => {
   const [draggingOver, setDraggingOver] = useState(false)
   const [errorMessageClosed, setErrorMessageClosed] = useState(false)
   const [lastErrorMessage, setLastErrorMessage] = useState<string>()
+  const history = useHistory()
 
   const handleDrop: React.DragEventHandler<HTMLDivElement> = async (e) => {
     e.preventDefault()
@@ -87,6 +89,14 @@ const FileSelector = ({ onFileDrop }: Props) => {
 
       <h2>A random generator for NFT assets</h2>
       <hr />
+      <Button
+        size="lg"
+        style={{ marginBottom: "20px" }}
+        onClick={() => history.push("/how-it-works")}
+      >
+        How it works?
+      </Button>
+
       <h4>To start, drop your zip file down here 👇</h4>
 
       <Alert

@@ -1,9 +1,11 @@
 import React, { useState } from "react"
+import { Switch, Route } from "react-router-dom"
 import "./App.css"
 import FileSelector from "./pages/FileSelector"
 import { Container } from "react-bootstrap"
 import RandomGenerator, { TraitsMap } from "./pages/RandomGenerator"
 import Results from "./pages/Results"
+import HowItWorks from "./pages/HowItWorks"
 
 function App() {
   const [file, setFile] = useState<File>()
@@ -17,13 +19,23 @@ function App() {
 
   return (
     <Container fluid style={{ height: "100vh" }}>
-      {!file ? (
-        <FileSelector onFileDrop={setFile} />
-      ) : !resultsFile ? (
-        <RandomGenerator assetsFile={file} onFinish={handleGeneratorFinish} />
-      ) : (
-        traitsMap && <Results file={resultsFile} traitsMap={traitsMap} />
-      )}
+      <Switch>
+        <Route path="/" exact>
+          {!file ? (
+            <FileSelector onFileDrop={setFile} />
+          ) : !resultsFile ? (
+            <RandomGenerator
+              assetsFile={file}
+              onFinish={handleGeneratorFinish}
+            />
+          ) : (
+            traitsMap && <Results file={resultsFile} traitsMap={traitsMap} />
+          )}
+        </Route>
+        <Route path="/how-it-works">
+          <HowItWorks />
+        </Route>
+      </Switch>
     </Container>
   )
 }
