@@ -12,7 +12,12 @@ type Props = {
 
 type ValidationError = "not-a-zip" | "invalid-directory-structure"
 
-const VALID_ZIP_TYPES = ["application/zip", "application/x-gzip"]
+const VALID_ZIP_TYPES = [
+  "application/zip",
+  "application/x-gzip",
+  "application/x-zip-compressed",
+]
+
 const ZIP_ERROR_MESSAGES: Record<ValidationError, string> = {
   "not-a-zip": "The file must be a .zip",
   "invalid-directory-structure":
@@ -25,6 +30,8 @@ const validateFile = async (
   file: File
 ): Promise<[boolean, ValidationError[]]> => {
   let errors: ValidationError[] = []
+
+  console.log(file.type)
 
   if (!VALID_ZIP_TYPES.includes(file.type)) {
     errors.push("not-a-zip")
