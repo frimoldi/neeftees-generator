@@ -48,6 +48,11 @@ const generateAssetsZipFile = async (
 
   const metadataKeys = []
   let duplicateFound = false
+  const fullMetadataFile = new ZipDeflate("metadata.json", { level: 9 })
+  zip.add(fullMetadataFile)
+
+  fullMetadataFile.push(str2ab("["))
+
   for (let i = 0; i < amount; i++) {
     const [image, metadata, metadataKey, duplicate] = await generateNonDuplicateImage(traits, fileMap, metadataKeys, !duplicateFound)
 
@@ -63,10 +68,19 @@ const generateAssetsZipFile = async (
     const metadataFile = new ZipDeflate(`${i + 1}.json`, { level: 9 })   
     zip.add(metadataFile)
     metadataFile.push(str2ab(JSON.stringify(metadata)), true)
+    fullMetadataFile.push(str2ab(JSON.stringify(metadata)))
+
+    if (i < amount - 1) {
+      fullMetadataFile.push(str2ab(","))
+    }
+
 
     // eslint-disable-next-line
     self.postMessage({type: "progress", progress: `${i + 1}`, image, metadata})
   }
+
+  fullMetadataFile.push(str2ab("]"), true)
+
   zip.end()
   zip.terminate()
 }

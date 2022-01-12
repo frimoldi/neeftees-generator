@@ -42,6 +42,8 @@ const Results = ({ file, traitsMap }: ResultsProps) => {
         if (fileName.endsWith(".png")) {
           images.push(file)
         } else {
+          if (fileName.startsWith("metadata")) continue
+
           const res = await file.async("string")
           const metadataJSON = JSON.parse(res)
           metadata.push(metadataJSON)
